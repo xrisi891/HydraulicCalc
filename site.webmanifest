@@ -1,6 +1,6 @@
 {
-  "name": "HR HydroCalc — хидравлични калкулатори",
-  "short_name": "HR HydroCalc",
+  "name": "HydroCalc",
+  "short_name": "HydroCalc",
   "lang": "bg",
   "start_url": "./",
   "display": "standalone",

@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0e2030">
-  <meta name="description" content="HR HydroCalc — хидравлични калкулатори за водопроводи, канализация, преливници, резервоари и помпи.">
+  <meta name="description" content="HydroCalc — хидравлични калкулатори за водопроводи, канализация, преливници, резервоари и помпи.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="HR HydroCalc — хидравлични калкулатори">
+  <meta property="og:title" content="HydroCalc">
   <meta property="og:description" content="Практични инженерни сметки за водопроводи, канали, помпи и преливници.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="site.webmanifest">
-  <title>HR HydroCalc — хидравлични калкулатори</title>
+  <title>HydroCalc</title>
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
@@ -18,8 +18,8 @@
   <div class="shell">
     <aside class="sidebar">
       <a class="brand" href="#home" aria-label="HydroCalc начало">
-        <span class="brand-mark" aria-hidden="true">HR</span>
-        <span><strong>HR HydroCalc</strong><small>ХИДРАВЛИЧНИ КАЛКУЛАТОРИ</small></span>
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path class="pipe-shell" d="M7 34h10a7 7 0 0 0 7-7v-7a7 7 0 0 1 7-7h9"/><path class="pipe-core" d="M7 34h10a7 7 0 0 0 7-7v-7a7 7 0 0 1 7-7h9"/><path class="flange" d="M35 8v10m5-10v10"/><path class="water-drop" d="M13 43c0 2-1.5 3.5-3.5 3.5S6 45 6 43c0-1.8 3.5-5.5 3.5-5.5S13 41.2 13 43Z"/></svg></span>
+        <span><strong>HydroCalc</strong><small>HR · ХИДРАВЛИЧНИ КАЛКУЛАТОРИ</small></span>
       </a>
       <div class="nav-label">КАЛКУЛАТОРИ</div>
       <nav class="nav" aria-label="Калкулатори">
@@ -35,7 +35,7 @@
       <div class="sidebar-bottom">
         <div class="unit-chip"><span class="status-dot"></span> SI единици</div>
         <p>Бързи инженерни сметки<br>в един работен екран.</p>
-        <span class="version">HYDROCALC · 01</span>
+        <span class="version">HYDROCALC · HR</span>
       </div>
     </aside>
 
@@ -101,26 +101,25 @@
 
           <form id="sideweir-form" class="calc-form view-form" data-view="sideweir" autocomplete="off">
             <div class="field-grid">
-              <label class="field"><span>Дебит преди преливника <i>Q₀</i></span><div class="input-wrap"><input name="q0" type="number" min="0.0001" step="any" value="2"><em>m³/s</em></div><small>Оразмерително водно количество</small></label>
+              <label class="field"><span>Дебит преди преливника <i>Q₀</i></span><div class="input-wrap"><input name="q0" type="number" min="0.1" step="any" value="2000"><em>L/s</em></div><small>Оразмерително водно количество</small></label>
               <label class="field"><span>Определяне на непреливащия дебит</span><div class="input-wrap select-wrap"><select name="qnonmode"><option value="manual">Въвеждам Qнепр</option><option value="regulation">По Наредба · (1+n₀)Qmax.h</option></select><em>метод</em></div><small>Чл. 33, ал. 3</small></label>
-              <label class="field" data-sw-field="qnon"><span>Непреливащ дебит <i>Qнепр</i></span><div class="input-wrap"><input name="qnon" type="number" min="0.0001" step="any" value="0.5"><em>m³/s</em></div><small>Дебит след преливника</small></label>
-              <label class="field" data-sw-field="qmax"><span>Максимално часово количество в сухо време <i>Qmax.h</i></span><div class="input-wrap"><input name="qmax" type="number" min="0.0001" step="any" value="0.083333"><em>m³/s</em></div><small>Използва се за изчисляване на Qнепр</small></label>
+              <label class="field" data-sw-field="qnon"><span>Непреливащ дебит <i>Qнепр</i></span><div class="input-wrap"><input name="qnon" type="number" min="0.1" step="any" value="500"><em>L/s</em></div><small>Дебит след преливника</small></label>
+              <label class="field" data-sw-field="qmax"><span>Максимално часово количество в сухо време <i>Qmax.h</i></span><div class="input-wrap"><input name="qmax" type="number" min="0.1" step="any" value="83.333"><em>L/s</em></div><small>Използва се за изчисляване на Qнепр</small></label>
               <label class="field" data-sw-field="qmax"><span>Степен на разреждане <i>n₀</i></span><div class="input-wrap"><input name="n0" type="number" min="0" step="any" value="5"><em>—</em></div><small>В населеното място обичайно минимум 5, ако няма по-високи изисквания</small></label>
-              <label class="field"><span>Височина на преливния ръб <i>p</i></span><div class="input-wrap"><input name="p" type="number" min="0" step="any" value="0.24"><em>m</em></div><small>Проверовъчно оразмеряване</small></label>
-              <label class="field"><span>Воден стоеж при входа <i>h₁</i></span><div class="input-wrap"><input name="h1" type="number" value="0.8" readonly><em>m</em></div><small>Изчислява се по Манинг при Q₀</small></label>
-              <label class="field"><span>Воден стоеж при изхода <i>h₂</i></span><div class="input-wrap"><input name="h2" type="number" value="0.35" readonly><em>m</em></div><small>Изчислява се по Манинг при Qнепр</small></label>
-              <label class="field"><span>Диаметър на входящата тръба <i>D₁</i></span><div class="input-wrap"><input name="d1" type="number" min="0.1" step="any" value="0.8"><em>m</em></div><small>Широчината B на канала се приема равна на D₁</small></label>
-              <label class="field"><span>Диаметър на отвеждащата тръба <i>D₂</i></span><div class="input-wrap"><input name="d2" type="number" min="0.1" step="any" value="0.8"><em>m</em></div><small>За проверка на режима след преливника</small></label>
-              <label class="field"><span>Наклон на входящата тръба <i>i₁</i></span><div class="input-wrap"><input name="s1" type="number" min="0.000001" step="any" value="0.02"><em>m/m</em></div><small>Надлъжен наклон за изчисляване на h₁</small></label>
-              <label class="field"><span>Наклон на отвеждащата тръба <i>i₂</i></span><div class="input-wrap"><input name="s2" type="number" min="0.000001" step="any" value="0.01"><em>m/m</em></div><small>Надлъжен наклон за изчисляване на h₂</small></label>
-              <label class="field"><span>Коефициент на Манинг <i>n</i></span><div class="input-wrap"><input name="manning" type="number" min="0.005" step="any" value="0.013"><em>—</em></div><small>За материала на двете тръби</small></label>
-              <label class="field"><span>Кота на дъното при входа <i>Z₀</i></span><div class="input-wrap"><input name="z0" type="number" step="any" value="100"><em>m</em></div><small>Абсолютна кота за профилната графика</small></label>
-              <label class="field"><span>Надлъжен наклон на дъното <i>i</i></span><div class="input-wrap"><input name="slope" type="number" min="0" step="any" value="0.001"><em>m/m</em></div><small>За профилните коти по дължината</small></label>
+              <label class="field"><span>Диаметър на довеждащата тръба <i>D₁</i></span><div class="input-wrap"><input name="d1" type="number" min="0.1" step="any" value="0.9"><em>m</em></div><small>Тръбата преди преливника</small></label>
+              <label class="field"><span>Наклон на довеждащата тръба <i>i₁</i></span><div class="input-wrap"><input name="s1" type="number" min="0.000001" step="any" value="0.005"><em>m/m</em></div><small>Използва се за пълнежа при Q₀ и Qнепр</small></label>
+              <label class="field"><span>Диаметър на отвеждащата тръба <i>D₂</i></span><div class="input-wrap"><input name="d2" type="number" min="0.1" step="any" value="0.5"><em>m</em></div><small>Провежда непреливащия дебит Qнепр</small></label>
+              <label class="field"><span>Наклон на отвеждащата тръба <i>i₂</i></span><div class="input-wrap"><input name="s2" type="number" min="0.000001" step="any" value="0.003"><em>m/m</em></div><small>За пълнежната височина след преливника</small></label>
+              <label class="field"><span>Диаметър на отливната тръба <i>D₃</i></span><div class="input-wrap"><input name="d3" type="number" min="0.1" step="any" value="0.7"><em>m</em></div><small>Провежда преливащия дебит Q₀ − Qнепр</small></label>
+              <label class="field"><span>Наклон на отливната тръба <i>i₃</i></span><div class="input-wrap"><input name="s3" type="number" min="0.000001" step="any" value="0.014"><em>m/m</em></div><small>За проверка на отливната тръба</small></label>
+              <label class="field"><span>Коефициент на Манинг <i>n</i></span><div class="input-wrap"><input name="manning" type="number" min="0.005" step="any" value="0.013"><em>—</em></div><small>За определяне на пълнежа в кръглите тръби</small></label>
+              <label class="field"><span>Кота дъно на довеждащата тръба <i>Z₀</i></span><div class="input-wrap"><input name="z0" type="number" step="any" value="100"><em>m</em></div><small>Абсолютна кота за профилната графика</small></label>
+              <label class="field"><span>Наклон на преливния ръб по дължина</span><div class="input-wrap"><input name="slope" type="number" min="0" step="any" value="0"><em>m/m</em></div><small>За профилните коти по дължината</small></label>
               <label class="field"><span>Кота на водоприемника при 1% обезпеченост</span><div class="input-wrap"><input name="zrecv" type="number" step="any" placeholder="по избор"><em>m</em></div><small>За нормативна проверка по чл. 32</small></label>
               <label class="field"><span>Коефициент на стеснение <i>μ</i></span><div class="input-wrap"><input name="mu" type="number" min="0.5" max="0.9" step="any" value="0.7"><em>—</em></div><small>Препоръчителен диапазон: 0.65–0.75</small></label>
-              <label class="field"><span>Изчислителна стъпка <i>Δl</i></span><div class="input-wrap"><input name="dx" type="number" min="0.001" max="0.2" step="any" value="0.01"><em>m</em></div><small>По-малка стъпка дава по-прецизен числен резултат</small></label>
             </div>
-            <div class="info-note source-note"><span>i</span><p>Численият модел следва методиката за страничен преливник в приложената статия. Нормативните проверки са по <a href="https://www.mrrb.bg/bg/naredba-rd-02-20-8-ot-2013-g-za-proektirane-izgrajdane-i-eksploataciya-na-kanalizacionni-sistemi/" target="_blank" rel="noopener">Наредба № РД-02-20-8, чл. 31–33 ↗</a>. Конструктивните мерки и общото съответствие се проверяват отделно.</p></div>
+            <div class="info-note source-note"><span>i</span><p>Пълнежите в тръбите се изчисляват по Манинг за зададените дебит, диаметър и наклон. Приема се P = h₁ за Qнепр във входящата тръба; H₁ = H₀,₁ − h₁; за отвеждащата тръба Δh = h₁ − h₂. Дължината се изчислява за свободен непотопен преливник по приложения пример. Нормативната проверка е по <a href="https://www.mrrb.bg/bg/naredba-rd-02-20-8-ot-2013-g-za-proektirane-izgrajdane-i-eksploataciya-na-kanalizacionni-sistemi/" target="_blank" rel="noopener">Наредба № РД-02-20-8, чл. 31–33 ↗</a>.</p></div>
+            <button id="sideweir-print" class="print-btn" type="button" aria-label="Отпечатай изчислението на преливника"><span aria-hidden="true">⎙</span> Печат</button>
           </form>
 
           <form id="circular-form" class="calc-form view-form" data-view="circular" autocomplete="off">
@@ -159,7 +158,7 @@
           <div class="hero-result"><div class="hero-label" id="hero-label">СКОРОСТ НА ТЕЧЕНИЕ</div><div class="hero-number"><strong id="hero-value">—</strong><span id="hero-unit">m/s</span></div><div class="hero-caption" id="hero-caption">Средна скорост в тръбата</div><div class="hero-wave" aria-hidden="true"><svg viewBox="0 0 600 74" preserveAspectRatio="none"><path d="M0 40 C45 40 45 17 90 17 S135 58 180 58 225 25 270 25 315 47 360 47 405 9 450 9 495 56 540 56 585 31 630 31"/><path d="M0 58 C45 58 45 39 90 39 S135 69 180 69 225 44 270 44 315 61 360 61 405 30 450 30 495 70 540 70 585 49 630 49"/></svg></div></div>
           <div id="result-grid" class="result-grid" aria-live="polite"></div>
           <div id="result-error" class="result-error" role="alert" hidden></div>
-          <div class="sideweir-chart-wrap" hidden><div class="chart-heading"><b>Надлъжен профил</b><span>Котите се обновяват с входните данни</span></div><svg id="sideweir-chart" viewBox="0 0 760 300" role="img" aria-label="Надлъжен профил на страничния преливник"></svg><div id="sideweir-legend" class="chart-legend"></div></div>
+          <div class="sideweir-chart-wrap" hidden><div class="chart-heading"><b>Изчислителна схема на преливника</b><span>Надписите и размерите се обновяват с входните данни</span></div><svg id="sideweir-chart" viewBox="0 0 900 360" role="img" aria-label="Динамична изчислителна схема на дъждопреливник"></svg><div id="sideweir-legend" class="chart-legend"></div></div>
           <div class="formula-footer"><span class="formula-mark">ƒ</span><span id="formula-note">Hazen–Williams и Darcy–Weisbach</span><span class="formula-scope">ПРЕДВАРИТЕЛНА СМЕТКА</span></div>
         </div>
       </section>
@@ -168,7 +167,7 @@
         <iframe src="retention-tank.html" title="Оразмеряване на задържателен резервоар" loading="lazy"></iframe>
       </section>
 
-      <footer class="page-footer"><span>HR HydroCalc · хидравлични калкулатори</span><span>Проверявайте проектните стойности спрямо приложимите норми и условията на обекта.</span></footer>
+      <footer class="page-footer"><span>HydroCalc · HR</span><span>Проверявайте проектните стойности спрямо приложимите норми и условията на обекта.</span></footer>
     </main>
   </div>
 </body>

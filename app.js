@@ -19,7 +19,7 @@ const titles = {
   pipe: ['Напорен тръбопровод', 'Дебит, скорост и загуби на напор по Hazen–Williams и Darcy–Weisbach.', 'СКОРОСТ НА ТЕЧЕНИЕ', 'Средна скорост в тръбата', 'Hazen–Williams и Darcy–Weisbach'],
   mainpipe: ['Водопровод PN10 / PN16', 'Оразмерителен дебит, вътрешен диаметър, скорост и хидравличен наклон.', 'ХИДРАВЛИЧЕН НАКЛОН', 'Загуба на напор по дължината на тръбата', 'Pipelife · Darcy–Weisbach / Colebrook–White'],
   colebrook: ['Colebrook–White', 'Гравитационно и напорно оразмеряване на тръбопроводи.', 'СКОРОСТ НА ТЕЧЕНИЕ', 'Резултат от хидравличното изчисление', 'Darcy–Weisbach · Colebrook–White'],
-  sideweir: ['Страничен дъждопреливник', 'Числено оразмеряване и надлъжен профил с характерни коти.', 'ДЪЛЖИНА НА ПРЕЛИВНИЯ РЪБ', 'Числено изчислена дължина', 'Крайни разлики · контрол по Наредба № РД-02-20-8'],
+  sideweir: ['Страничен дъждопреливник', 'Оразмеряване по дебити, тръбни пълнежи и характеристики на преливника.', 'ДЪЛЖИНА НА ПРЕЛИВНИЯ РЪБ', 'Изчислена дължина', 'Проверка по Наредба № РД-02-20-8'],
   circular: ['Кръгъл канал', 'Равномерно течение в кръгло сечение с частично или пълно запълване.', 'ДЕБИТ ПО МАНИНГ', 'Капацитет при зададено запълване', 'Формула на Манинг · кръгъл сегмент'],
   rectangular: ['Правоъгълен канал', 'Дебит и скорост за правоъгълно призматично сечение.', 'ДЕБИТ ПО МАНИНГ', 'Капацитет на канала', 'Формула на Манинг · правоъгълно сечение'],
   pump: ['Помпа и мощност', 'Оценка на необходимата входна мощност и дневната енергия.', 'НЕОБХОДИМА МОЩНОСТ', 'Входна мощност при зададения КПД', 'Хидравлична мощност и КПД'],
@@ -268,23 +268,37 @@ function calculateColebrook() {
   setResults(hero,unit,caption,items,`Colebrook–White · k=${fmt(eps*1000,3)} mm · вода ${t}°C`,warn);
 }
 
-function drawSideWeir(profile, values) {
-  const svg = document.querySelector('#sideweir-chart'), legend = document.querySelector('#sideweir-legend');
-  if (!profile || profile.length < 2) { svg.innerHTML = '<text x="380" y="150" text-anchor="middle" class="chart-empty">Профилът ще се покаже при валидни входни данни</text>'; legend.innerHTML = ''; return; }
-  const { z0, slope, p, zrecv } = values, length = profile[profile.length - 1].x;
-  const points = profile.map(pt => ({ x: pt.x, bed: z0 - slope * pt.x, crest: z0 - slope * pt.x + p, water: z0 - slope * pt.x + pt.h, critical: z0 - slope * pt.x + pt.hc }));
-  const levels = points.flatMap(o => [o.bed,o.crest,o.water,o.critical]);
-  if (Number.isFinite(zrecv)) levels.push(zrecv);
-  let min = Math.min(...levels), max = Math.max(...levels); if (max-min < 0.05) { min -= .05; max += .05; }
-  const W=760,H=300,L=65,R=18,T=22,B=42, iw=W-L-R, ih=H-T-B;
-  const X=x=>L+(length ? x/length : 0)*iw, Y=z=>T+(max-z)/(max-min)*ih;
-  const path = key => points.map((pt,i)=>`${i?'L':'M'}${X(pt.x).toFixed(1)},${Y(pt[key]).toFixed(1)}`).join(' ');
-  const grid=[];
-  for(let i=0;i<=4;i++){const z=min+(max-min)*i/4,y=Y(z);grid.push(`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" class="chart-gridline"/><text x="${L-8}" y="${y+3}" text-anchor="end" class="chart-tick">${fmt(z,2)}</text>`);}
-  const axis=`<line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" class="chart-axis"/><line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" class="chart-axis"/><text x="14" y="${T+8}" class="chart-axis-label">Кота (m)</text><text x="${W-R}" y="${H-10}" text-anchor="end" class="chart-axis-label">Разстояние по ръба (m)</text>`;
-  const receiver = Number.isFinite(zrecv) ? `<line x1="${L}" y1="${Y(zrecv)}" x2="${W-R}" y2="${Y(zrecv)}" class="chart-receiver"/>` : '';
-  svg.innerHTML = `${grid.join('')}${axis}${receiver}<path d="${path('bed')}" class="chart-bed"/><path d="${path('crest')}" class="chart-crest"/><path d="${path('water')}" class="chart-water"/><path d="${path('critical')}" class="chart-critical"/><text x="${X(0)}" y="${Y(points[0].water)-8}" class="chart-annotation">Zводн. вход</text><text x="${X(length)}" y="${Y(points.at(-1).water)-8}" text-anchor="end" class="chart-annotation">Zводн. изход</text><text x="${X(0)+4}" y="${Y(points[0].crest)+14}" class="chart-annotation">Zпреливен ръб</text>`;
-  legend.innerHTML = `<span><i class="swatch water"></i>Водно ниво</span><span><i class="swatch crest"></i>Преливен ръб</span><span><i class="swatch bed"></i>Дъно</span><span><i class="swatch critical"></i>Критична кота</span>${Number.isFinite(zrecv)?'<span><i class="swatch receiver"></i>Водоприемник при 1%</span>':''}`;
+function drawSideWeir(_profile, values) {
+  const svg=document.querySelector('#sideweir-chart'), legend=document.querySelector('#sideweir-legend');
+  if(!values||!Number.isFinite(values.hWet)){svg.innerHTML='<text x="450" y="180" text-anchor="middle" class="chart-empty">Схемата ще се покаже при валидни входни данни</text>';legend.innerHTML='';return;}
+  const {z0,slope,p,zrecv,hWet,hOut,dh,length}=values;
+  const zWet=z0+hWet, zDry=z0+p, zOutlet=z0+dh, zOutletWater=zOutlet+hOut;
+  const zCrestEnd=z0-slope*length+p;
+  const levels=[z0,zWet,zDry,zOutlet,zOutletWater,zCrestEnd];
+  if(Number.isFinite(zrecv))levels.push(zrecv);
+  let min=Math.min(...levels),max=Math.max(...levels);if(max-min<.25){min-=.15;max+=.15;}
+  const yTop=48,yBottom=282,scale=(yBottom-yTop)/(max-min),Y=z=>yTop+(max-z)*scale;
+  const xIn=52,xRise=305,xWeirEnd=650,xOut=700,xRight=860,yi=Y(z0),yWet=Y(zWet),yDry=Y(zDry),yOut=Y(zOutlet),yOutWater=Y(zOutletWater),yCrestEnd=Y(zCrestEnd);
+  const dim=(x,y1,y2,label)=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" class="chart-dim" marker-start="url(#dim-arrow)" marker-end="url(#dim-arrow)"/><text x="${x+6}" y="${(y1+y2)/2+3}" class="chart-dimension-label">${label}</text>`;
+  const receiver=Number.isFinite(zrecv)?`<line x1="${xIn}" y1="${Y(zrecv)}" x2="${xRight}" y2="${Y(zrecv)}" class="chart-receiver"/><text x="${xRight-2}" y="${Y(zrecv)-5}" text-anchor="end" class="chart-annotation">Водоприемник 1%</text>`:'';
+  svg.innerHTML=`<defs><pattern id="wall-hatch" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="0" y2="8" stroke="#8799a1" stroke-width="2"/></pattern><marker id="dim-arrow" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto-start-reverse"><path d="M0 0L7 3.5L0 7Z" fill="#516a76"/></marker></defs>
+    <rect x="${xIn}" y="28" width="${xRise-xIn}" height="13" fill="url(#wall-hatch)" stroke="#71858e"/>
+    <rect x="${xOut}" y="28" width="${xRight-xOut}" height="13" fill="url(#wall-hatch)" stroke="#71858e"/>
+    <rect x="${xIn-8}" y="${yi}" width="${xWeirEnd-xIn+8}" height="10" fill="url(#wall-hatch)" stroke="#71858e"/>
+    <rect x="${xOut}" y="${yOut}" width="${xRight-xOut}" height="10" fill="url(#wall-hatch)" stroke="#71858e"/>
+    <path d="M${xRise} ${yi}V${yDry} M${xOut} 41V${yOut}" class="chart-wall"/>
+    <path d="M${xIn} ${yWet}H${xRise}L${xWeirEnd} ${yCrestEnd}" class="chart-water"/>
+    <path d="M${xIn} ${yDry}H${xRise}" class="chart-dry-water"/>
+    <path d="M${xRise} ${yDry}L${xWeirEnd} ${yCrestEnd}" class="chart-crest"/>
+    <path d="M${xWeirEnd} ${yCrestEnd}H${xOut}" class="chart-wall"/>
+    ${receiver}
+    ${dim(92,yi,yWet,'H₀,₁')}${dim(145,yi,yDry,'h₁ = P')}${dim(198,yWet,yDry,'H₁')}${dim(625,yi,yDry,'P')}${dim(820,yOut,yOutWater,'h₂')}${dim(675,yi,yOut,'Δh')}
+    <line x1="${xRise}" y1="326" x2="${xWeirEnd}" y2="326" class="chart-dim" marker-start="url(#dim-arrow)" marker-end="url(#dim-arrow)"/><text x="${(xRise+xWeirEnd)/2}" y="319" text-anchor="middle" class="chart-dimension-label">b = ${fmt(length,2)} m</text>
+    <text x="${xIn+4}" y="${Math.max(54,yWet-9)}" class="chart-annotation">Qор</text><text x="${xIn+4}" y="${yDry-7}" class="chart-annotation">Qнепр</text>
+    <text x="${xOut+8}" y="${yOutWater-8}" class="chart-annotation">Qнепр</text>
+    <text x="${xRise+8}" y="${yCrestEnd+15}" class="chart-annotation">Преливен ръб</text>
+    <text x="${xIn}" y="350" class="chart-axis-label">Довеждаща тръба</text><text x="${xOut+4}" y="350" class="chart-axis-label">Отвеждаща тръба</text>`;
+  legend.innerHTML=`<span><i class="swatch water"></i>Водно ниво при Qор</span><span><i class="swatch crest"></i>Преливен ръб</span><span><i class="swatch bed"></i>Дъно на тръбите</span>${Number.isFinite(zrecv)?'<span><i class="swatch receiver"></i>Водоприемник при 1%</span>':''}`;
 }
 
 function syncSideWeirForm() {
@@ -314,56 +328,42 @@ function normalDepthCircular(q, d, n, slope) {
 
 function calculateSideWeir() {
   const f=formFor('sideweir');
-  const q0=numeric(f,'q0'), qnon=f.elements.qnonmode.value==='regulation'?(1+numeric(f,'n0'))*numeric(f,'qmax'):numeric(f,'qnon'), p=numeric(f,'p'), d1=numeric(f,'d1'), d2=numeric(f,'d2'), s1=numeric(f,'s1'), s2=numeric(f,'s2'), manning=numeric(f,'manning'), mu=numeric(f,'mu'), dx=numeric(f,'dx'), z0=numeric(f,'z0'), slope=numeric(f,'slope');
-  const zrecv=f.elements.zrecv.value.trim()===''?NaN:Number(f.elements.zrecv.value), B=d1;
+  const q0Ls=numeric(f,'q0'), qnonLs=f.elements.qnonmode.value==='regulation'?(1+numeric(f,'n0'))*numeric(f,'qmax'):numeric(f,'qnon');
+  const q0=q0Ls/1000, qnon=qnonLs/1000, d1=numeric(f,'d1'), d2=numeric(f,'d2'), d3=numeric(f,'d3'), s1=numeric(f,'s1'), s2=numeric(f,'s2'), s3=numeric(f,'s3'), manning=numeric(f,'manning'), mu=numeric(f,'mu'), z0=numeric(f,'z0'), slope=numeric(f,'slope');
+  const zrecv=f.elements.zrecv.value.trim()===''?NaN:Number(f.elements.zrecv.value), qoverflow=q0-qnon;
   const err=(message)=>{ setResults('—','', 'Провери входните данни', [], 'Няма изчислен профил.', message); drawSideWeir(null,{}); };
-  if(!(q0>qnon&&qnon>0&&d1>0&&d2>0&&s1>0&&s2>0&&manning>0&&mu>=.5&&mu<=.9&&dx>0&&slope>=0)){err('Провери дебитите, диаметрите, наклоните, коефициента на Манинг и коефициента μ.');return;}
-  const h1=normalDepthCircular(q0,d1,manning,s1), h2=normalDepthCircular(qnon,d2,manning,s2);
-  if(!(Number.isFinite(h1)&&Number.isFinite(h2))){err('По зададените дебит, диаметър, наклон и n няма частично запълнено решение по Манинг. Провери капацитета на входящата и отвеждащата тръба.');return;}
-  f.elements.h1.value=h1.toFixed(5); f.elements.h2.value=h2.toFixed(5);
-  if(!(h1>p&&h2>0)){err('Водният стоеж при входа трябва да е над котата на преливния ръб p.');return;}
-  const hc1=Math.cbrt(q0*q0/(G*d1*d1)), hc2=Math.cbrt(qnon*qnon/(G*d2*d2));
-  const super1=h1<hc1, super2=h2<hc2;
-  if(super1!==super2){err('Граничните сечения са в различни режими на течение. Този преход не може да се изчисли с еднозначната схема от методиката.');return;}
-  const direction=super1?'forward':'backward';
-  let x=direction==='forward'?0:0, q=direction==='forward'?q0:qnon, h=direction==='forward'?h1:h2;
-  const goal=direction==='forward'?qnon:q0, profile=[];
-  const point=(xx,qq,hh)=>({x:xx,q:qq,h:hh,hc:Math.cbrt(qq*qq/(G*B*B))});
-  profile.push(point(x,q,h));
-  const maxSteps=250000;
-  let steps=0, failed='';
-  while((direction==='forward'?q>goal:q<goal)&&steps<maxSteps){
-    steps++;
-    const v=q/(B*h), head=h-p, alpha=v/Math.sqrt(v*v+2*G*Math.max(head,0));
-    const effective=head-alpha*v*v/(2*G);
-    if(!(effective>0)){failed='Скоростният напор изчерпва наличния преливен напор преди отвеждането на целия дебит.';break;}
-    const m=(2/3)*mu, qprime=m*Math.sqrt(2*G)*Math.pow(effective,1.5);
-    const dl=Math.min(dx,Math.abs(goal-q)/qprime), dqi=qprime*dl;
-    const qnext=direction==='forward'?Math.max(goal,q-dqi):Math.min(goal,q+dqi);
-    const qmid=(q+qnext)/2, hmid=h;
-    const denom=qmid*qmid-G*B*B*hmid*hmid*hmid;
-    if(Math.abs(denom)<1e-8){failed='Потокът достига критично състояние; възможен е хидравличен скок.';break;}
-    const dh=hmid*qmid/denom*(qnext-q);
-    const hnext=h+dh;
-    if(!(hnext>p&&Number.isFinite(hnext))){failed='Водният стоеж пада до или под котата на преливния ръб.';break;}
-    x+=dl; q=qnext; h=hnext;
-    const next=point(x,q,h), Fr=next.h<next.hc;
-    if((direction==='forward'&&!Fr)||(direction==='backward'&&Fr)){failed='По дължината се достига критична дълбочина и вероятен хидравличен скок; методиката прекратява решението.';break;}
-    profile.push(next);
-  }
-  if(!failed&&steps>=maxSteps) failed='Изчислението достигна лимита на числените стъпки.';
-  if(failed){err(failed);return;}
-  if(direction==='backward') profile.forEach(pt=>pt.x=x-pt.x);
-  profile.sort((a,b)=>a.x-b.x);
-  // Keep boundary depths exact for clear plotting; elevations use the calculated profile between them.
-  profile[0].h=h1; profile[profile.length-1].h=h2;
-  const crestIn=z0+p, crestOut=z0-slope*x+p, receiverOK=Number.isFinite(zrecv)?Math.min(crestIn,crestOut)>zrecv:null;
-  const regime=super1?'Бурно (свръхкритично)':'Спокойно (подкритично)';
-  const metrics=[metric('QНЕПРЕЛИВАЩО',fmt(qnon,3),'m³/s'),metric('QПРЕЛИВАЩО',fmt(q0-qnon,3),'m³/s',true),metric('ВОДЕН СТОЕЖ h₁',fmt(h1,3),'m'),metric('ВОДЕН СТОЕЖ h₂',fmt(h2,3),'m'),metric('РЕЖИМ В КАНАЛА',regime,''),metric('КРИТИЧНА ДЪЛБОЧИНА hкр,1',fmt(hc1,3),'m'),metric('КРИТИЧНА ДЪЛБОЧИНА hкр,2',fmt(hc2,3),'m'),metric('КОТА НА РЪБА ПРИ ВХОДА',fmt(crestIn,3),'m'),metric('КОТА НА РЪБА ПРИ ИЗХОДА',fmt(crestOut,3),'m'),metric('ВОДНО НИВО ПРИ ВХОДА',fmt(z0+h1,3),'m'),metric('ВОДНО НИВО ПРИ ИЗХОДА',fmt(z0-slope*x+h2,3),'m'),metric('ПРОВЕРКА ПО ЧЛ. 32',receiverOK===null?'Въведи водно ниво':receiverOK?'Премината':'Непремината','')];
-  const extra=receiverOK===null?'За проверка по чл. 32 въведи водното ниво във водоприемника при 1% обезпеченост.':receiverOK?'Котата на преливния ръб е над зададеното водно ниво при 1%.':'Котата на преливния ръб не е над зададеното водно ниво при 1%.';
-  const warning=receiverOK===false?extra:'h₁ и h₂ са изчислени по Манинг при равномерно течение в кръгли тръби. Конструктивното задържане на плаващи материали и останалите изисквания на чл. 31–33 се проверяват отделно.';
-  setResults(fmt(x,2),'m','Необходима дължина на преливния ръб',metrics,`Манинг за h₁/h₂ · крайни разлики Δl=${fmt(dx,3)} m · ${regime}`,warning);
-  drawSideWeir(profile,{z0,slope,p,zrecv});
+  if(!(q0>qnon&&qnon>0&&d1>0&&d2>0&&d3>0&&s1>0&&s2>0&&s3>0&&manning>0&&mu>=.5&&mu<=.9&&slope>=0)){err('Провери дебитите, диаметрите, наклоните, коефициента на Манинг и коефициента μ.');return;}
+  // Worked-example method in the supplied diploma: calculate circular-pipe
+  // normal depths for the storm and non-overflow flows, then set P to the
+  // non-overflow depth in the incoming pipe.
+  const hWet=normalDepthCircular(q0,d1,manning,s1);
+  const hDryIn=normalDepthCircular(qnon,d1,manning,s1);
+  const hOut=normalDepthCircular(qnon,d2,manning,s2);
+  const hOverflow=normalDepthCircular(qoverflow,d3,manning,s3);
+  if(![hWet,hDryIn,hOut,hOverflow].every(Number.isFinite)){err('Поне една от тръбите няма капацитет за зададения дебит при този диаметър, наклон и n. Увеличи диаметъра/наклона или провери дебита.');return;}
+  const p=hDryIn, head=hWet-p, dh=hDryIn-hOut;
+  if(!(head>0)){err('Водният стоеж при Q₀ трябва да е над стоежа при Qнепр, за да има преливане.');return;}
+  // Free, non-submerged rectangular overflow using the report's mean head H/2.
+  const length=qoverflow/((2/3)*mu*(head/2)*Math.sqrt(2*G*(head/2)));
+  const crestIn=z0+p, crestOut=z0-slope*length+p;
+  const receiverOK=Number.isFinite(zrecv)?Math.min(crestIn,crestOut)>zrecv:null;
+  const metrics=[
+    metric('НЕПРЕЛИВАЩ ДЕБИТ Qнепр',fmt(qnon*1000,2),'L/s'),
+    metric('ПРЕЛИВАЩ ДЕБИТ Qпр',fmt(qoverflow*1000,2),'L/s',true),
+    metric('ВХОДЕН СТОЕЖ ПРИ Q₀',fmt(hWet,3),'m'),
+    metric('ВХОДЕН СТОЕЖ ПРИ Qнепр',fmt(hDryIn,3),'m'),
+    metric('ВИСОЧИНА НА ПРЕЛИВНИЯ РЪБ P',fmt(p,3),'m'),
+    metric('НАПОР НАД ПРЕЛИВНИЯ РЪБ',fmt(head,3),'m'),
+    metric('СТОЕЖ В ОТВЕЖДАЩАТА ТРЪБА h₂',fmt(hOut,3),'m'),
+    metric('СТОЕЖ В ОТЛИВНАТА ТРЪБА h₃',fmt(hOverflow,3),'m'),
+    metric('РАЗЛИКА Δh = h₁ − h₂',fmt(dh,3),'m'),
+    metric('КОТА НА ПРЕЛИВНИЯ РЪБ ПРИ ВХОДА',fmt(crestIn,3),'m'),
+    metric('КОТА НА ПРЕЛИВНИЯ РЪБ ПРИ ИЗХОДА',fmt(crestOut,3),'m'),
+    metric('ПРОВЕРКА ПО ЧЛ. 32',receiverOK===null?'Въведи водно ниво':receiverOK?'Премината':'Непремината','')
+  ];
+  const warning=receiverOK===null?'За проверка по чл. 32 въведи котата на водоприемника при 1% обезпеченост.':receiverOK?'Котата на преливния ръб е над зададеното водно ниво при 1%.':'Котата на преливния ръб не е над зададеното водно ниво при 1%.';
+  setResults(fmt(length,2),'m','Изчислена дължина на преливния ръб',metrics,'Примерът в приложената дипломна работа · Манинг за пълнежите · свободен непотопен преливник',warning);
+  drawSideWeir(null,{z0,slope,p,zrecv,hWet,hOut,dh,length});
 }
 
 function calculateRectangular() {
@@ -447,6 +447,7 @@ document.querySelectorAll('.view-form').forEach((form) => {
   form.addEventListener('submit', (event) => event.preventDefault());
 });
 formFor('sideweir').elements.qnonmode.addEventListener('change', () => { syncSideWeirForm(); calculateSideWeir(); });
+document.querySelector('#sideweir-print').addEventListener('click', () => window.print());
 syncSideWeirForm();
 formFor('mainpipe').elements.pn.addEventListener('change', () => { populateMainPipe(); calculateMainPipe(); });
 formFor('mainpipe').elements.dn.addEventListener('change', calculateMainPipe);
