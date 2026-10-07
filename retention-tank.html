@@ -1,0 +1,5246 @@
+```html
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Оразмеряване на задържателен резервоар</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #eef2f7;
+    color: #1f2937;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+h1 {
+    color: #123b63;
+    margin-bottom: 5px;
+}
+
+h2 {
+    color: #174a78;
+    margin-top: 0;
+}
+
+h3 {
+    color: #174a78;
+}
+
+.subtitle {
+    color: #64748b;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #374151;
+}
+
+input,
+select,
+button,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+button {
+    background: #1769aa;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #12558a;
+}
+
+button.small {
+    width: auto;
+    padding: 7px 12px;
+    font-size: 13px;
+}
+
+button.danger {
+    background: #dc2626;
+}
+
+button.print {
+    background: #15803d;
+}
+
+button.secondary {
+    background: #64748b;
+}
+
+button.project-save {
+    background: #1769aa;
+}
+
+button.project-new {
+    background: #475569;
+}
+
+button.project-delete {
+    background: #dc2626;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* =========================
+   ПРОЕКТИ
+========================= */
+
+.project-controls {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 10px;
+    align-items: end;
+}
+
+.project-controls select {
+    min-width: 220px;
+}
+
+.project-status {
+    margin-top: 12px;
+    color: #166534;
+    font-size: 13px;
+    min-height: 18px;
+}
+
+/* =========================
+   ДАННИ ЗА ПРОЕКТА
+========================= */
+
+.project-header {
+    border-left: 5px solid #1769aa;
+    padding-left: 15px;
+}
+
+.project-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #123b63;
+}
+
+.project-info {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.project-info-box {
+    background: #f8fafc;
+    border: 1px solid #dbe3ec;
+    padding: 10px;
+    border-radius: 7px;
+}
+
+.project-info-label {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.project-info-value {
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+/* =========================
+   ПЛОЩИ
+========================= */
+
+.area-table-wrapper {
+    overflow-x: auto;
+    margin-top: 18px;
+}
+
+.area-table {
+    width: 100%;
+    min-width: 1150px;
+    border-collapse: collapse;
+}
+
+.area-table th {
+    background: #174a78;
+    color: white;
+    padding: 9px;
+    border: 1px solid #d1d5db;
+    font-size: 13px;
+}
+
+.area-table td {
+    padding: 7px;
+    border: 1px solid #d1d5db;
+}
+
+.area-table tr:nth-child(even) td {
+    background: #f8fafc;
+}
+
+.area-table input {
+    width: 100%;
+    min-width: 80px;
+}
+
+.area-table .description {
+    min-width: 190px;
+}
+
+.area-table .number {
+    text-align: center;
+    font-weight: bold;
+}
+
+.calculated {
+    background: #f1f5f9 !important;
+    font-weight: bold;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* =========================
+   РЕЗУЛТАТИ
+========================= */
+
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.result {
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.result-label {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.result-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: #123b63;
+    margin-top: 5px;
+}
+
+.formula {
+    background: #f8fafc;
+    border-left: 4px solid #1769aa;
+    padding: 15px;
+    margin-top: 15px;
+    line-height: 1.6;
+}
+
+.success {
+    background: #ecfdf5;
+    border: 1px solid #86efac;
+    color: #166534;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.error {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.info {
+    background: #eff6ff;
+    border: 1px solid #93c5fd;
+    color: #1e40af;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+/* =========================
+   KP
+========================= */
+
+.kp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.kp-table th,
+.kp-table td {
+    border: 1px solid #cbd5e1;
+    padding: 8px;
+    text-align: center;
+}
+
+.kp-table th {
+    background: #174a78;
+    color: white;
+}
+
+.kp-table tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+/* =========================
+   ПЕЧАТ
+========================= */
+
+.print-preview {
+    background: white;
+    border: 1px solid #cbd5e1;
+    padding: 25px;
+    margin-top: 15px;
+}
+
+.print-header {
+    text-align: center;
+    border-bottom: 2px solid #123b63;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.print-header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.print-meta {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.print-meta td {
+    border: 1px solid #cbd5e1;
+    padding: 8px;
+}
+
+.print-meta td:first-child {
+    width: 25%;
+    font-weight: bold;
+    background: #f1f5f9;
+}
+
+.print-results {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.print-results th,
+.print-results td {
+    border: 1px solid #cbd5e1;
+    padding: 8px;
+}
+
+.print-results th {
+    background: #174a78;
+    color: white;
+}
+
+.signature-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 100px;
+    margin-top: 60px;
+}
+
+.signature-box {
+    border-top: 1px solid #333;
+    padding-top: 8px;
+    text-align: center;
+}
+
+.stamp-box {
+    margin-top: 35px;
+    width: 170px;
+    height: 100px;
+    border: 2px dashed #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:800px) {
+
+    .container {
+        padding: 10px;
+        margin: 10px auto;
+    }
+
+    .card {
+        padding: 15px;
+    }
+
+    .project-info {
+        grid-template-columns: 1fr;
+    }
+
+    .project-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .project-controls button {
+        width: 100%;
+    }
+
+    .signature-area {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+}
+
+/* =========================
+   PRINT
+========================= */
+
+@media print {
+
+    body {
+        background: white;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .container {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .card {
+        box-shadow: none;
+        border: none;
+        page-break-inside: avoid;
+    }
+
+    .print-preview {
+        border: none;
+        padding: 0;
+    }
+
+    #printReport {
+        display: block !important;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- =====================================================
+     ЗАГЛАВИЕ
+===================================================== -->
+
+<div class="card no-print">
+
+<div class="project-header">
+
+<div class="project-title">
+Оразмеряване на задържателни резервоари
+</div>
+
+<div class="subtitle">
+При гравитационни канализационни мрежи
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     ПРОЕКТИ
+===================================================== -->
+
+<div class="card no-print">
+
+<h2>Проект</h2>
+
+<div class="project-controls">
+
+<div>
+
+<label>
+Записан проект
+</label>
+
+<select id="savedProjects">
+<option value="">-- Изберете проект --</option>
+</select>
+
+</div>
+
+<button
+type="button"
+class="project-new"
+id="newProjectButton">
+
+Нов проект
+
+</button>
+
+<button
+type="button"
+class="project-save"
+id="saveProjectButton">
+
+Запази проект
+
+</button>
+
+<button
+type="button"
+class="project-delete"
+id="deleteProjectButton">
+
+Изтрий проект
+
+</button>
+
+</div>
+
+<div
+id="projectStatus"
+class="project-status">
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     ДАННИ ЗА ПРОЕКТА
+===================================================== -->
+
+<div class="card no-print">
+
+<h2>Данни за проекта</h2>
+
+<div class="grid">
+
+<div>
+
+<label>
+Име на обект
+</label>
+
+<input
+id="projectName"
+type="text"
+placeholder="Въведете име на обекта">
+
+</div>
+
+
+<div>
+
+<label>
+Проектант
+</label>
+
+<input
+id="designer"
+type="text"
+placeholder="Име на проектанта">
+
+</div>
+
+
+<div>
+
+<label>
+Възложител
+</label>
+
+<input
+id="client"
+type="text"
+placeholder="Име на възложителя">
+
+</div>
+
+
+<div>
+
+<label>
+Дата
+</label>
+
+<input
+id="projectDate"
+type="date">
+
+</div>
+
+</div>
+
+
+<div style="margin-top:15px">
+
+<label>
+Забележки / допълнителна информация
+</label>
+
+<textarea
+id="projectNotes"
+placeholder="Допълнителна информация за проекта..."></textarea>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     1. QOP
+===================================================== -->
+
+<div class="card no-print">
+
+<h2>1. Оразмерително водно количество Qop</h2>
+
+<div class="grid">
+
+<div>
+
+<label>
+Начин на определяне на Qop
+</label>
+
+<select id="qopMode">
+
+<option value="areas">
+По водосборни площи
+</option>
+
+<option value="direct">
+Директно въвеждане
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<div id="areasBox">
+
+<div style="margin-top:20px">
+
+<button
+type="button"
+class="small"
+id="addAreaButton">
+
++ Добави площ
+
+</button>
+
+</div>
+
+
+<div class="area-table-wrapper">
+
+<table class="area-table">
+
+<thead>
+
+<tr>
+
+<th>№</th>
+
+<th>Тип / описание</th>
+
+<th>Площ [m²]</th>
+
+<th>Площ [ha]</th>
+
+<th>Отточен коефициент ψ</th>
+
+<th>Интензитет i [l/s/ha]</th>
+
+<th>Q [l/s]</th>
+
+<th></th>
+
+</tr>
+
+</thead>
+
+<tbody id="areasBody"></tbody>
+
+<tfoot>
+
+<tr>
+
+<td colspan="2">
+<strong>Общо</strong>
+</td>
+
+<td>
+<strong>
+<span id="totalAreaM2">0.00</span> m²
+</strong>
+</td>
+
+<td>
+<strong>
+<span id="totalAreaHa">0.00</span> ha
+</strong>
+</td>
+
+<td></td>
+
+<td></td>
+
+<td>
+<strong>
+<span id="areaQop">0.00</span> l/s
+</strong>
+</td>
+
+<td></td>
+
+</tr>
+
+</tfoot>
+
+</table>
+
+</div>
+
+
+<div class="formula">
+
+<strong>Формула:</strong>
+
+<br><br>
+
+Q = A × ψ × i
+
+<br><br>
+
+A – площ в хектари [ha]
+
+<br>
+
+1 ha = 10 000 m²
+
+<br><br>
+
+<strong>
+Qop = Σ(A × ψ × i)
+</strong>
+
+</div>
+
+</div>
+
+
+<div
+id="directQopBox"
+class="hidden"
+style="margin-top:20px">
+
+<div class="grid">
+
+<div>
+
+<label>
+Qop – директно [l/s]
+</label>
+
+<input
+id="directQop"
+type="number"
+min="0"
+step="0.01"
+value="100">
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="result-grid" style="margin-top:20px">
+
+<div class="result">
+
+<div class="result-label">
+Обща площ
+</div>
+
+<div class="result-value">
+
+<span id="summaryAreaM2">0.00</span> m²
+
+<br>
+
+<span style="font-size:16px">
+(<span id="summaryAreaHa">0.00</span> ha)
+</span>
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+Qop
+</div>
+
+<div class="result-value">
+
+<span id="summaryQop">0.00</span> l/s
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     2. ОСНОВНИ ПАРАМЕТРИ
+===================================================== -->
+
+<div class="card no-print">
+
+<h2>2. Основни оразмерителни параметри</h2>
+
+<div class="grid">
+
+<div>
+
+<label>
+Време на оттичане tот [min]
+</label>
+
+<input
+id="normTom"
+type="number"
+min="0"
+step="0.01"
+value="5">
+
+</div>
+
+
+<div>
+
+<label>
+Период на еднократно претоварване P [год.]
+</label>
+
+<select id="normP">
+
+<option value="0.5">0,5</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="5" selected>5</option>
+<option value="10">10</option>
+<option value="15">15</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>
+Qop [l/s]
+</label>
+
+<input
+id="normQop"
+type="text"
+readonly>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     3. QP
+===================================================== -->
+
+<div class="card no-print">
+
+<h2>3. Изпускано водно количество Qp</h2>
+
+<div class="info">
+
+<strong>
+Qp е количеството, което се изпуска към приемника.
+</strong>
+
+<br><br>
+
+Разликата се задържа в резервоара:
+
+<br><br>
+
+<strong>
+Qзад = Qop − Qp
+</strong>
+
+</div>
+
+
+<div class="grid" style="margin-top:15px">
+
+<div>
+
+<label>
+Начин на задаване на Qp
+</label>
+
+<select id="qpMode">
+
+<option value="percent">
+Процент от Qop
+</option>
+
+<option value="direct">
+Директно въвеждане
+</option>
+
+</select>
+
+</div>
+
+
+<div id="qpPercentBox">
+
+<label>
+Qp като процент от Qop [%]
+</label>
+
+<input
+id="qpPercent"
+type="number"
+min="0"
+max="100"
+step="0.01"
+value="30">
+
+</div>
+
+
+<div id="qpDirectBox" class="hidden">
+
+<label>
+Qp към приемника [l/s]
+</label>
+
+<input
+id="qpDirect"
+type="number"
+min="0"
+step="0.01"
+value="30">
+
+</div>
+
+
+<div>
+
+<label>
+Qp към приемника [l/s]
+</label>
+
+<input
+id="normQp"
+type="text"
+readonly>
+
+</div>
+
+
+<div>
+
+<label>
+Qзад – задържано количество [l/s]
+</label>
+
+<input
+id="normQzad"
+type="text"
+readonly>
+
+</div>
+
+</div>
+
+
+<div class="result-grid" style="margin-top:20px">
+
+<div class="result">
+
+<div class="result-label">Qop</div>
+
+<div class="result-value">
+
+<span id="resultQop">0.00</span> l/s
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">Qp</div>
+
+<div class="result-value">
+
+<span id="resultQp">0.00</span> l/s
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">Qзад</div>
+
+<div class="result-value">
+
+<span id="resultQzad">0.00</span> l/s
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+α = Qp / Qop
+</div>
+
+<div class="result-value">
+
+<span id="resultAlpha">0.00</span>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     4. ОБЕМ
+===================================================== -->
+
+<div class="card no-print">
+
+<h2>4. Работен обем на резервоара</h2>
+
+<div class="result-grid">
+
+<div class="result">
+
+<div class="result-label">
+Qop
+</div>
+
+<div class="result-value">
+
+<span id="resultQop2">0.00</span> l/s
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+Qp
+</div>
+
+<div class="result-value">
+
+<span id="resultQp2">0.00</span> l/s
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+Qзад
+</div>
+
+<div class="result-value">
+
+<span id="resultQzad2">0.00</span> l/s
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+α
+</div>
+
+<div class="result-value">
+
+<span id="resultAlpha2">0.00</span>
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+Kp
+</div>
+
+<div class="result-value">
+
+<span id="resultKp">0.00</span>
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+tот
+</div>
+
+<div class="result-value">
+
+<span id="resultTom">0.00</span> min
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+Работен обем Vp
+</div>
+
+<div class="result-value">
+
+<span id="resultVp">0.00</span> m³
+
+</div>
+
+</div>
+
+</div>
+
+
+<div id="volumeMessage"></div>
+
+
+<div class="formula">
+
+<strong>
+Vp = Qop × 0,06 × tот × Kp
+</strong>
+
+<br><br>
+
+Qop – l/s
+
+<br>
+
+tот – min
+
+<br>
+
+Kp – коефициент на резервоара
+
+<br>
+
+Vp – m³
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     5. KP
+===================================================== -->
+
+<div class="card no-print">
+
+<h2>
+5. Коефициент на резервоара Kp
+</h2>
+
+<div style="overflow-x:auto">
+
+<table class="kp-table">
+
+<thead>
+
+<tr>
+
+<th>α</th>
+<th>0,5</th>
+<th>1</th>
+<th>2</th>
+<th>5</th>
+<th>10</th>
+<th>15</th>
+
+</tr>
+
+</thead>
+
+<tbody id="kpTableBody"></tbody>
+
+</table>
+
+</div>
+
+
+<div class="info">
+
+За междинни стойности на α се използва линейна интерполация.
+
+<br><br>
+
+<strong>
+Kp се закръгля до втория знак преди изчисляването на Vp.
+</strong>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     6. ИЗПУСКАНЕ
+===================================================== -->
+
+<div class="card no-print">
+
+<h2>
+6. Изпускане на натрупания обем
+</h2>
+
+<div class="grid">
+
+<div>
+
+<label>
+Време за изпускане [h]
+</label>
+
+<input
+id="emptyingHours"
+type="number"
+min="0.01"
+step="0.01"
+value="24">
+
+</div>
+
+
+<div>
+
+<label>
+Работен обем [m³]
+</label>
+
+<input
+id="emptyVolume"
+type="text"
+readonly>
+
+</div>
+
+
+<div>
+
+<label>
+Среден дебит [l/s]
+</label>
+
+<input
+id="emptyFlow"
+type="text"
+readonly>
+
+</div>
+
+
+<div>
+
+<label>
+Среден дебит [m³/h]
+</label>
+
+<input
+id="emptyFlowM3H"
+type="text"
+readonly>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     7. ГЕОМЕТРИЯ
+===================================================== -->
+
+<div class="card no-print">
+
+<h2>
+7. Геометрични размери
+</h2>
+
+<div class="grid">
+
+<div>
+
+<label>
+Форма на резервоара
+</label>
+
+<select id="tankShape">
+
+<option value="horizontalCylinder">
+Хоризонтален цилиндър
+</option>
+
+<option value="verticalCylinder">
+Вертикален цилиндър
+</option>
+
+<option value="rectangle">
+Правоъгълен резервоар
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<div id="horizontalCylinderBox">
+
+<h3>
+Хоризонтален цилиндричен резервоар
+</h3>
+
+<div class="grid">
+
+<div>
+
+<label>
+Диаметър D [m]
+</label>
+
+<input
+id="hcDiameter"
+type="number"
+min="0.01"
+step="0.01"
+value="3">
+
+</div>
+
+
+<div>
+
+<label>
+Необходима дължина L [m]
+</label>
+
+<input
+id="hcLength"
+type="text"
+readonly>
+
+</div>
+
+
+<div>
+
+<label>
+Геометричен обем [m³]
+</label>
+
+<input
+id="hcVolume"
+type="text"
+readonly>
+
+</div>
+
+</div>
+
+
+<div class="formula">
+
+V = π × D² / 4 × L
+
+<br><br>
+
+L = V / (π × D² / 4)
+
+</div>
+
+</div>
+
+
+<div id="verticalCylinderBox"
+class="hidden">
+
+<h3>
+Вертикален цилиндричен резервоар
+</h3>
+
+<div class="grid">
+
+<div>
+
+<label>
+Диаметър D [m]
+</label>
+
+<input
+id="vcDiameter"
+type="number"
+min="0.01"
+step="0.01"
+value="3">
+
+</div>
+
+
+<div>
+
+<label>
+Необходима височина H [m]
+</label>
+
+<input
+id="vcHeight"
+type="text"
+readonly>
+
+</div>
+
+
+<div>
+
+<label>
+Геометричен обем [m³]
+</label>
+
+<input
+id="vcVolume"
+type="text"
+readonly>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div id="rectangleBox" class="hidden">
+
+<h3>
+Правоъгълен резервоар
+</h3>
+
+<div class="grid">
+
+<div>
+
+<label>
+Ширина B [m]
+</label>
+
+<input
+id="rectWidth"
+type="number"
+min="0.01"
+step="0.01"
+value="3">
+
+</div>
+
+
+<div>
+
+<label>
+Височина H [m]
+</label>
+
+<input
+id="rectHeight"
+type="number"
+min="0.01"
+step="0.01"
+value="2">
+
+</div>
+
+
+<div>
+
+<label>
+Необходима дължина L [m]
+</label>
+
+<input
+id="rectLength"
+type="text"
+readonly>
+
+</div>
+
+
+<div>
+
+<label>
+Геометричен обем [m³]
+</label>
+
+<input
+id="rectVolume"
+type="text"
+readonly>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="result-grid" style="margin-top:20px">
+
+<div class="result">
+
+<div class="result-label">
+Необходим работен обем
+</div>
+
+<div class="result-value">
+
+<span id="geometryVolume">
+0.00
+</span>
+
+m³
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     8. ОБОБЩЕНИЕ
+===================================================== -->
+
+<div class="card no-print">
+
+<h2>
+8. Обобщение
+</h2>
+
+<div class="result-grid">
+
+<div class="result">
+
+<div class="result-label">
+Обща площ
+</div>
+
+<div class="result-value">
+
+<span id="sumAreaM2">0.00</span> m²
+
+<br>
+
+<span style="font-size:16px">
+
+<span id="sumAreaHa">0.00</span> ha
+
+</span>
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+Qop
+</div>
+
+<div class="result-value">
+
+<span id="sumQop">0.00</span> l/s
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+Qp
+</div>
+
+<div class="result-value">
+
+<span id="sumQp">0.00</span> l/s
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+Qзад
+</div>
+
+<div class="result-value">
+
+<span id="sumQzad">0.00</span> l/s
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+α
+</div>
+
+<div class="result-value">
+
+<span id="sumAlpha">0.00</span>
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+Kp
+</div>
+
+<div class="result-value">
+
+<span id="sumKp">0.00</span>
+
+</div>
+
+</div>
+
+
+<div class="result">
+
+<div class="result-label">
+Vp
+</div>
+
+<div class="result-value">
+
+<span id="sumVp">0.00</span> m³
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     БУТОНИ
+===================================================== -->
+
+<div class="card no-print">
+
+<div class="grid">
+
+<button
+type="button"
+class="print"
+id="printButton">
+
+Печат на изчислението
+
+</button>
+
+
+<button
+type="button"
+class="secondary"
+id="updatePrintButton">
+
+Обнови печатния отчет
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     ПЕЧАТЕН ОТЧЕТ
+===================================================== -->
+
+<div
+id="printReport"
+class="card print-preview">
+
+<div class="print-header">
+
+<h1>
+ОРАЗМЕРЯВАНЕ НА ЗАДЪРЖАТЕЛЕН РЕЗЕРВОАР
+</h1>
+
+<p>
+При гравитационна канализационна мрежа
+</p>
+
+</div>
+
+
+<table class="print-meta">
+
+<tr>
+
+<td>
+Име на обект
+</td>
+
+<td id="printProjectName">
+-
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Проектант
+</td>
+
+<td id="printDesigner">
+-
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Възложител
+</td>
+
+<td id="printClient">
+-
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Дата
+</td>
+
+<td id="printDate">
+-
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Забележки
+</td>
+
+<td id="printNotes">
+-
+</td>
+
+</tr>
+
+</table>
+
+
+<h3>
+1. Водосборни площи
+</h3>
+
+<table class="print-results">
+
+<thead>
+
+<tr>
+
+<th>№</th>
+<th>Описание</th>
+<th>m²</th>
+<th>ha</th>
+<th>ψ</th>
+<th>i [l/s/ha]</th>
+<th>Q [l/s]</th>
+
+</tr>
+
+</thead>
+
+<tbody id="printAreasBody"></tbody>
+
+</table>
+
+
+<h3>
+2. Оразмерителни параметри
+</h3>
+
+<table class="print-results">
+
+<tr>
+
+<td>
+Оразмерително водно количество Qop
+</td>
+
+<td>
+<span id="printQop">0.00</span> l/s
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Изпускано количество Qp
+</td>
+
+<td>
+<span id="printQp">0.00</span> l/s
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Задържано количество Qзад
+</td>
+
+<td>
+<span id="printQzad">0.00</span> l/s
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+α = Qp / Qop
+</td>
+
+<td>
+<span id="printAlpha">0.00</span>
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Период P
+</td>
+
+<td>
+<span id="printP">0.00</span> години
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Време на оттичане tот
+</td>
+
+<td>
+<span id="printTom">0.00</span> min
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Коефициент Kp
+</td>
+
+<td>
+<span id="printKp">0.00</span>
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Работен обем Vp
+</td>
+
+<td>
+<strong>
+<span id="printVp">0.00</span> m³
+</strong>
+</td>
+
+</tr>
+
+</table>
+
+
+<h3>
+3. Геометрични размери
+</h3>
+
+<table class="print-results">
+
+<tr>
+
+<td>
+Форма
+</td>
+
+<td id="printShape">
+-
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+Размер
+</td>
+
+<td id="printGeometry">
+-
+</td>
+
+</tr>
+
+</table>
+
+
+<div class="signature-area">
+
+<div>
+
+<div class="signature-box">
+Проектант
+</div>
+
+<p style="text-align:center" id="printDesignerSignature">
+-
+</p>
+
+</div>
+
+
+<div>
+
+<div class="stamp-box">
+ПЕЧАТ
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   ДАННИ
+===================================================== */
+
+let areas = [];
+
+let areaCounter = 0;
+
+let designVolume = 0;
+
+let currentProjectId = null;
+
+
+/* =====================================================
+   ЗАКРЪГЛЯНЕ
+===================================================== */
+
+function round2(value) {
+
+    if (!Number.isFinite(value)) {
+        return 0;
+    }
+
+    return Math.round(
+        (value + Number.EPSILON) * 100
+    ) / 100;
+}
+
+
+function f2(value) {
+
+    return round2(value).toFixed(2);
+
+}
+
+
+/* =====================================================
+   KP
+===================================================== */
+
+const kpData = {
+
+    0.1: {
+        0.5: 1.01,
+        1: 1.16,
+        2: 1.28,
+        5: 1.40,
+        10: 1.46,
+        15: 1.49
+    },
+
+    0.2: {
+        0.5: 0.68,
+        1: 0.74,
+        2: 0.78,
+        5: 0.82,
+        10: 0.84,
+        15: 0.85
+    },
+
+    0.3: {
+        0.5: 0.50,
+        1: 0.51,
+        2: 0.53,
+        5: 0.55,
+        10: 0.56,
+        15: 0.56
+    },
+
+    0.4: {
+        0.5: 0.36,
+        1: 0.36,
+        2: 0.37,
+        5: 0.38,
+        10: 0.38,
+        15: 0.38
+    },
+
+    0.5: {
+        0.5: 0.25,
+        1: 0.25,
+        2: 0.25,
+        5: 0.25,
+        10: 0.25,
+        15: 0.26
+    },
+
+    0.6: {
+        0.5: 0.16,
+        1: 0.16,
+        2: 0.16,
+        5: 0.16,
+        10: 0.16,
+        15: 0.16
+    },
+
+    0.7: {
+        0.5: 0.10,
+        1: 0.09,
+        2: 0.09,
+        5: 0.09,
+        10: 0.09,
+        15: 0.09
+    },
+
+    0.8: {
+        0.5: 0.04,
+        1: 0.04,
+        2: 0.04,
+        5: 0.04,
+        10: 0.04,
+        15: 0.04
+    },
+
+    0.9: {
+        0.5: 0.01,
+        1: 0.01,
+        2: 0.01,
+        5: 0.01,
+        10: 0.01,
+        15: 0.01
+    }
+
+};
+
+
+/* =====================================================
+   ДОБАВЯНЕ НА ПЛОЩ
+===================================================== */
+
+function addArea(
+    description = "Нова площ",
+    areaM2 = 1000,
+    psi = 0.70,
+    intensity = 100
+) {
+
+    areaCounter++;
+
+    const area = {
+
+        id: areaCounter,
+
+        description: description,
+
+        areaM2: round2(areaM2),
+
+        areaHa: round2(areaM2 / 10000),
+
+        psi: round2(psi),
+
+        intensity: round2(intensity)
+
+    };
+
+
+    areas.push(area);
+
+    createAreaRow(area);
+
+    calculateAll();
+
+}
+
+
+/* =====================================================
+   РЕД НА ПЛОЩ
+===================================================== */
+
+function createAreaRow(area) {
+
+    const tbody =
+        document.getElementById(
+            "areasBody"
+        );
+
+
+    const tr =
+        document.createElement("tr");
+
+
+    tr.id =
+        "areaRow_" + area.id;
+
+
+    tr.innerHTML = `
+
+        <td class="number">
+            ${area.id}
+        </td>
+
+        <td>
+
+            <input
+                type="text"
+                class="description"
+                value="${escapeHtml(area.description)}"
+                data-field="description">
+
+        </td>
+
+        <td>
+
+            <input
+                type="number"
+                min="0"
+                step="0.01"
+                value="${area.areaM2}"
+                data-field="areaM2">
+
+        </td>
+
+        <td>
+
+            <input
+                type="number"
+                min="0"
+                step="0.0001"
+                value="${area.areaHa}"
+                data-field="areaHa">
+
+        </td>
+
+        <td>
+
+            <input
+                type="number"
+                min="0"
+                max="1"
+                step="0.01"
+                value="${area.psi}"
+                data-field="psi">
+
+        </td>
+
+        <td>
+
+            <input
+                type="number"
+                min="0"
+                step="0.01"
+                value="${area.intensity}"
+                data-field="intensity">
+
+        </td>
+
+        <td
+            class="calculated"
+            data-field="q">
+
+            0.00
+
+        </td>
+
+        <td>
+
+            <button
+                type="button"
+                class="danger small"
+                data-action="delete">
+
+                Изтрий
+
+            </button>
+
+        </td>
+    `;
+
+
+    tbody.appendChild(tr);
+
+
+    tr.querySelector(
+        '[data-field="description"]'
+    ).addEventListener(
+        "input",
+        function() {
+
+            area.description =
+                this.value;
+
+            updatePrintReport();
+
+        }
+    );
+
+
+    tr.querySelector(
+        '[data-field="areaM2"]'
+    ).addEventListener(
+        "input",
+        function() {
+
+            const value =
+                parseFloat(this.value);
+
+
+            area.areaM2 =
+                Number.isFinite(value)
+                    ? Math.max(0,value)
+                    : 0;
+
+
+            area.areaHa =
+                round2(
+                    area.areaM2 /
+                    10000
+                );
+
+
+            tr.querySelector(
+                '[data-field="areaHa"]'
+            ).value =
+                area.areaHa;
+
+
+            updateAreaRow(
+                area,
+                tr
+            );
+
+
+            calculateAll();
+
+        }
+    );
+
+
+    tr.querySelector(
+        '[data-field="areaHa"]'
+    ).addEventListener(
+        "input",
+        function() {
+
+            const value =
+                parseFloat(this.value);
+
+
+            area.areaHa =
+                Number.isFinite(value)
+                    ? Math.max(0,value)
+                    : 0;
+
+
+            area.areaM2 =
+                round2(
+                    area.areaHa *
+                    10000
+                );
+
+
+            tr.querySelector(
+                '[data-field="areaM2"]'
+            ).value =
+                area.areaM2;
+
+
+            updateAreaRow(
+                area,
+                tr
+            );
+
+
+            calculateAll();
+
+        }
+    );
+
+
+    tr.querySelector(
+        '[data-field="psi"]'
+    ).addEventListener(
+        "input",
+        function() {
+
+            const value =
+                parseFloat(this.value);
+
+
+            area.psi =
+                Number.isFinite(value)
+                    ? Math.max(
+                        0,
+                        Math.min(
+                            1,
+                            value
+                        )
+                    )
+                    : 0;
+
+
+            updateAreaRow(
+                area,
+                tr
+            );
+
+
+            calculateAll();
+
+        }
+    );
+
+
+    tr.querySelector(
+        '[data-field="intensity"]'
+    ).addEventListener(
+        "input",
+        function() {
+
+            const value =
+                parseFloat(this.value);
+
+
+            area.intensity =
+                Number.isFinite(value)
+                    ? Math.max(0,value)
+                    : 0;
+
+
+            updateAreaRow(
+                area,
+                tr
+            );
+
+
+            calculateAll();
+
+        }
+    );
+
+
+    tr.querySelector(
+        '[data-action="delete"]'
+    ).addEventListener(
+        "click",
+        function() {
+
+            areas =
+                areas.filter(
+                    item =>
+                        item.id !== area.id
+                );
+
+
+            tr.remove();
+
+            calculateAll();
+
+        }
+    );
+
+
+    updateAreaRow(
+        area,
+        tr
+    );
+
+}
+
+
+/* =====================================================
+   Q НА ПЛОЩ
+===================================================== */
+
+function updateAreaRow(area,tr) {
+
+    const q =
+        round2(
+            area.areaHa *
+            area.psi *
+            area.intensity
+        );
+
+
+    tr.querySelector(
+        '[data-field="q"]'
+    ).textContent =
+        f2(q);
+
+}
+
+
+/* =====================================================
+   ОБЩИ ПЛОЩИ
+===================================================== */
+
+function calculateAreaTotals() {
+
+    let totalM2 = 0;
+
+    let totalHa = 0;
+
+    let totalQ = 0;
+
+
+    areas.forEach(
+        area => {
+
+            totalM2 +=
+                area.areaM2;
+
+            totalHa +=
+                area.areaHa;
+
+            totalQ +=
+                area.areaHa *
+                area.psi *
+                area.intensity;
+
+        }
+    );
+
+
+    totalM2 =
+        round2(totalM2);
+
+    totalHa =
+        round2(totalHa);
+
+    totalQ =
+        round2(totalQ);
+
+
+    document.getElementById(
+        "totalAreaM2"
+    ).textContent =
+        f2(totalM2);
+
+
+    document.getElementById(
+        "totalAreaHa"
+    ).textContent =
+        f2(totalHa);
+
+
+    document.getElementById(
+        "areaQop"
+    ).textContent =
+        f2(totalQ);
+
+
+    document.getElementById(
+        "summaryAreaM2"
+    ).textContent =
+        f2(totalM2);
+
+
+    document.getElementById(
+        "summaryAreaHa"
+    ).textContent =
+        f2(totalHa);
+
+
+    document.getElementById(
+        "sumAreaM2"
+    ).textContent =
+        f2(totalM2);
+
+
+    document.getElementById(
+        "sumAreaHa"
+    ).textContent =
+        f2(totalHa);
+
+
+    return totalQ;
+
+}
+
+
+/* =====================================================
+   QOP
+===================================================== */
+
+function getQop() {
+
+    const mode =
+        document.getElementById(
+            "qopMode"
+        ).value;
+
+
+    if (mode === "direct") {
+
+        return round2(
+            Math.max(
+                0,
+                parseFloat(
+                    document.getElementById(
+                        "directQop"
+                    ).value
+                ) || 0
+            )
+        );
+
+    }
+
+
+    return round2(
+        calculateAreaTotals()
+    );
+
+}
+
+
+/* =====================================================
+   QP
+===================================================== */
+
+function getQp(Qop) {
+
+    const mode =
+        document.getElementById(
+            "qpMode"
+        ).value;
+
+
+    if (mode === "percent") {
+
+        let percent =
+            parseFloat(
+                document.getElementById(
+                    "qpPercent"
+                ).value
+            ) || 0;
+
+
+        percent =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    percent
+                )
+            );
+
+
+        return round2(
+            Qop *
+            percent /
+            100
+        );
+
+    }
+
+
+    return round2(
+        Math.max(
+            0,
+            parseFloat(
+                document.getElementById(
+                    "qpDirect"
+                ).value
+            ) || 0
+        )
+    );
+
+}
+
+
+/* =====================================================
+   KP
+===================================================== */
+
+function getKp(alpha,P) {
+
+    const keys =
+        Object.keys(kpData)
+        .map(Number)
+        .sort(
+            (a,b) => a-b
+        );
+
+
+    if (alpha <= keys[0]) {
+
+        return kpData[
+            keys[0]
+        ][P];
+
+    }
+
+
+    if (
+        alpha >=
+        keys[keys.length - 1]
+    ) {
+
+        return kpData[
+            keys[keys.length - 1]
+        ][P];
+
+    }
+
+
+    let lower =
+        keys[0];
+
+    let upper =
+        keys[1];
+
+
+    for (
+        let i = 0;
+        i < keys.length - 1;
+        i++
+    ) {
+
+        if (
+            alpha >= keys[i] &&
+            alpha <= keys[i + 1]
+        ) {
+
+            lower =
+                keys[i];
+
+            upper =
+                keys[i + 1];
+
+            break;
+
+        }
+
+    }
+
+
+    const k1 =
+        kpData[
+            lower
+        ][P];
+
+
+    const k2 =
+        kpData[
+            upper
+        ][P];
+
+
+    const ratio =
+        (
+            alpha - lower
+        ) /
+        (
+            upper - lower
+        );
+
+
+    return k1 +
+        (
+            k2 - k1
+        ) *
+        ratio;
+
+}
+
+
+/* =====================================================
+   KP ТАБЛИЦА
+===================================================== */
+
+function renderKpTable() {
+
+    const tbody =
+        document.getElementById(
+            "kpTableBody"
+        );
+
+
+    tbody.innerHTML = "";
+
+
+    Object.keys(kpData)
+    .forEach(
+        alpha => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${Number(alpha).toFixed(1)}
+                </td>
+
+                <td>${f2(kpData[alpha][0.5])}</td>
+                <td>${f2(kpData[alpha][1])}</td>
+                <td>${f2(kpData[alpha][2])}</td>
+                <td>${f2(kpData[alpha][5])}</td>
+                <td>${f2(kpData[alpha][10])}</td>
+                <td>${f2(kpData[alpha][15])}</td>
+
+            `;
+
+
+            tbody.appendChild(row);
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   QOP MODE
+===================================================== */
+
+function updateQopMode() {
+
+    const mode =
+        document.getElementById(
+            "qopMode"
+        ).value;
+
+
+    document.getElementById(
+        "areasBox"
+    ).classList.toggle(
+        "hidden",
+        mode !== "areas"
+    );
+
+
+    document.getElementById(
+        "directQopBox"
+    ).classList.toggle(
+        "hidden",
+        mode !== "direct"
+    );
+
+
+    calculateAll();
+
+}
+
+
+/* =====================================================
+   QP MODE
+===================================================== */
+
+function updateQpMode() {
+
+    const mode =
+        document.getElementById(
+            "qpMode"
+        ).value;
+
+
+    document.getElementById(
+        "qpPercentBox"
+    ).classList.toggle(
+        "hidden",
+        mode !== "percent"
+    );
+
+
+    document.getElementById(
+        "qpDirectBox"
+    ).classList.toggle(
+        "hidden",
+        mode !== "direct"
+    );
+
+
+    calculateAll();
+
+}
+
+
+/* =====================================================
+   ОСНОВНО ИЗЧИСЛЕНИЕ
+===================================================== */
+
+function calculateAll() {
+
+    let Qop =
+        getQop();
+
+
+    Qop =
+        round2(Qop);
+
+
+    document.getElementById(
+        "normQop"
+    ).value =
+        f2(Qop);
+
+
+    document.getElementById(
+        "summaryQop"
+    ).textContent =
+        f2(Qop);
+
+
+    document.getElementById(
+        "resultQop"
+    ).textContent =
+        f2(Qop);
+
+
+    document.getElementById(
+        "resultQop2"
+    ).textContent =
+        f2(Qop);
+
+
+    let Qp =
+        getQp(Qop);
+
+
+    Qp =
+        round2(Qp);
+
+
+    document.getElementById(
+        "normQp"
+    ).value =
+        f2(Qp);
+
+
+    document.getElementById(
+        "resultQp"
+    ).textContent =
+        f2(Qp);
+
+
+    document.getElementById(
+        "resultQp2"
+    ).textContent =
+        f2(Qp);
+
+
+    const Qzad =
+        round2(
+            Math.max(
+                0,
+                Qop - Qp
+            )
+        );
+
+
+    document.getElementById(
+        "normQzad"
+    ).value =
+        f2(Qzad);
+
+
+    document.getElementById(
+        "resultQzad"
+    ).textContent =
+        f2(Qzad);
+
+
+    document.getElementById(
+        "resultQzad2"
+    ).textContent =
+        f2(Qzad);
+
+
+    document.getElementById(
+        "sumQop"
+    ).textContent =
+        f2(Qop);
+
+
+    document.getElementById(
+        "sumQp"
+    ).textContent =
+        f2(Qp);
+
+
+    document.getElementById(
+        "sumQzad"
+    ).textContent =
+        f2(Qzad);
+
+
+    if (Qop <= 0) {
+
+        clearVolume();
+
+        updatePrintReport();
+
+        return;
+
+    }
+
+
+    if (Qp > Qop) {
+
+        designVolume = 0;
+
+
+        document.getElementById(
+            "volumeMessage"
+        ).innerHTML = `
+
+            <div class="error">
+
+                <strong>Грешка:</strong>
+
+                Qp не може да бъде по-голямо от Qop.
+
+            </div>
+
+        `;
+
+
+        calculateEmptying();
+
+        calculateGeometry();
+
+        updatePrintReport();
+
+        return;
+
+    }
+
+
+    const alpha =
+        round2(
+            Qp / Qop
+        );
+
+
+    const tom =
+        round2(
+            parseFloat(
+                document.getElementById(
+                    "normTom"
+                ).value
+            ) || 0
+        );
+
+
+    const P =
+        parseFloat(
+            document.getElementById(
+                "normP"
+            ).value
+        );
+
+
+    const KpRaw =
+        getKp(
+            alpha,
+            P
+        );
+
+
+    const Kp =
+        round2(
+            KpRaw
+        );
+
+
+    /*
+       Vp = Qop × 0.06 × tот × Kp
+
+       ВАЖНО:
+       Qp не се изважда директно от формулата за Vp.
+       Qp определя α = Qp / Qop,
+       а чрез α се определя Kp.
+    */
+
+    const Vp =
+        round2(
+            Qop *
+            0.06 *
+            tom *
+            Kp
+        );
+
+
+    designVolume =
+        Vp;
+
+
+    document.getElementById(
+        "resultAlpha"
+    ).textContent =
+        f2(alpha);
+
+
+    document.getElementById(
+        "resultAlpha2"
+    ).textContent =
+        f2(alpha);
+
+
+    document.getElementById(
+        "resultKp"
+    ).textContent =
+        f2(Kp);
+
+
+    document.getElementById(
+        "resultTom"
+    ).textContent =
+        f2(tom);
+
+
+    document.getElementById(
+        "resultVp"
+    ).textContent =
+        f2(Vp);
+
+
+    document.getElementById(
+        "sumAlpha"
+    ).textContent =
+        f2(alpha);
+
+
+    document.getElementById(
+        "sumKp"
+    ).textContent =
+        f2(Kp);
+
+
+    document.getElementById(
+        "sumVp"
+    ).textContent =
+        f2(Vp);
+
+
+    document.getElementById(
+        "emptyVolume"
+    ).value =
+        f2(Vp);
+
+
+    document.getElementById(
+        "volumeMessage"
+    ).innerHTML = `
+
+        <div class="success">
+
+            <strong>
+            Необходим работен обем:
+            ${f2(Vp)} m³
+            </strong>
+
+            <br><br>
+
+            Qop =
+            ${f2(Qop)}
+            l/s
+
+            <br>
+
+            Qp =
+            ${f2(Qp)}
+            l/s
+
+            <br>
+
+            Qзад =
+            ${f2(Qzad)}
+            l/s
+
+            <br>
+
+            α =
+            ${f2(alpha)}
+
+            <br>
+
+            Kp =
+            ${f2(Kp)}
+
+            <br>
+
+            tот =
+            ${f2(tom)}
+            min
+
+            <br><br>
+
+            <strong>
+            Vp =
+            ${f2(Qop)}
+            × 0,06 ×
+            ${f2(tom)}
+            ×
+            ${f2(Kp)}
+            =
+            ${f2(Vp)}
+            m³
+            </strong>
+
+        </div>
+
+    `;
+
+
+    calculateEmptying();
+
+    calculateGeometry();
+
+    updatePrintReport();
+
+}
+
+
+/* =====================================================
+   ИЗПУСКАНЕ
+===================================================== */
+
+function calculateEmptying() {
+
+    const hours =
+        round2(
+            parseFloat(
+                document.getElementById(
+                    "emptyingHours"
+                ).value
+            ) || 0
+        );
+
+
+    if (
+        designVolume <= 0 ||
+        hours <= 0
+    ) {
+
+        document.getElementById(
+            "emptyFlow"
+        ).value =
+            "0.00";
+
+
+        document.getElementById(
+            "emptyFlowM3H"
+        ).value =
+            "0.00";
+
+
+        return;
+
+    }
+
+
+    const flowM3H =
+        round2(
+            designVolume /
+            hours
+        );
+
+
+    const flowLs =
+        round2(
+            flowM3H /
+            3.6
+        );
+
+
+    document.getElementById(
+        "emptyFlow"
+    ).value =
+        f2(flowLs);
+
+
+    document.getElementById(
+        "emptyFlowM3H"
+    ).value =
+        f2(flowM3H);
+
+}
+
+
+/* =====================================================
+   ФОРМА
+===================================================== */
+
+function updateTankShape() {
+
+    const shape =
+        document.getElementById(
+            "tankShape"
+        ).value;
+
+
+    document.getElementById(
+        "horizontalCylinderBox"
+    ).classList.toggle(
+        "hidden",
+        shape !== "horizontalCylinder"
+    );
+
+
+    document.getElementById(
+        "verticalCylinderBox"
+    ).classList.toggle(
+        "hidden",
+        shape !== "verticalCylinder"
+    );
+
+
+    document.getElementById(
+        "rectangleBox"
+    ).classList.toggle(
+        "hidden",
+        shape !== "rectangle"
+    );
+
+
+    calculateGeometry();
+
+}
+
+
+/* =====================================================
+   ГЕОМЕТРИЯ
+===================================================== */
+
+function calculateGeometry() {
+
+    const V =
+        round2(
+            designVolume
+        );
+
+
+    document.getElementById(
+        "geometryVolume"
+    ).textContent =
+        f2(V);
+
+
+    const shape =
+        document.getElementById(
+            "tankShape"
+        ).value;
+
+
+    if (
+        shape ===
+        "horizontalCylinder"
+    ) {
+
+        const D =
+            parseFloat(
+                document.getElementById(
+                    "hcDiameter"
+                ).value
+            ) || 0;
+
+
+        if (
+            D > 0 &&
+            V > 0
+        ) {
+
+            const area =
+                Math.PI *
+                D *
+                D /
+                4;
+
+
+            const L =
+                round2(
+                    V / area
+                );
+
+
+            document.getElementById(
+                "hcLength"
+            ).value =
+                f2(L);
+
+
+            document.getElementById(
+                "hcVolume"
+            ).value =
+                f2(V);
+
+        }
+
+    }
+
+
+    if (
+        shape ===
+        "verticalCylinder"
+    ) {
+
+        const D =
+            parseFloat(
+                document.getElementById(
+                    "vcDiameter"
+                ).value
+            ) || 0;
+
+
+        if (
+            D > 0 &&
+            V > 0
+        ) {
+
+            const area =
+                Math.PI *
+                D *
+                D /
+                4;
+
+
+            const H =
+                round2(
+                    V / area
+                );
+
+
+            document.getElementById(
+                "vcHeight"
+            ).value =
+                f2(H);
+
+
+            document.getElementById(
+                "vcVolume"
+            ).value =
+                f2(V);
+
+        }
+
+    }
+
+
+    if (
+        shape ===
+        "rectangle"
+    ) {
+
+        const B =
+            parseFloat(
+                document.getElementById(
+                    "rectWidth"
+                ).value
+            ) || 0;
+
+
+        const H =
+            parseFloat(
+                document.getElementById(
+                    "rectHeight"
+                ).value
+            ) || 0;
+
+
+        if (
+            B > 0 &&
+            H > 0 &&
+            V > 0
+        ) {
+
+            const L =
+                round2(
+                    V /
+                    (
+                        B *
+                        H
+                    )
+                );
+
+
+            document.getElementById(
+                "rectLength"
+            ).value =
+                f2(L);
+
+
+            document.getElementById(
+                "rectVolume"
+            ).value =
+                f2(V);
+
+        }
+
+    }
+
+
+    updatePrintGeometry();
+
+}
+
+
+/* =====================================================
+   ПЕЧАТЕН ОТЧЕТ
+===================================================== */
+
+function updatePrintReport() {
+
+    const projectName =
+        document.getElementById(
+            "projectName"
+        ).value.trim();
+
+
+    const designer =
+        document.getElementById(
+            "designer"
+        ).value.trim();
+
+
+    const client =
+        document.getElementById(
+            "client"
+        ).value.trim();
+
+
+    const date =
+        document.getElementById(
+            "projectDate"
+        ).value;
+
+
+    const notes =
+        document.getElementById(
+            "projectNotes"
+        ).value.trim();
+
+
+    document.getElementById(
+        "printProjectName"
+    ).textContent =
+        projectName || "-";
+
+
+    document.getElementById(
+        "printDesigner"
+    ).textContent =
+        designer || "-";
+
+
+    document.getElementById(
+        "printClient"
+    ).textContent =
+        client || "-";
+
+
+    document.getElementById(
+        "printDate"
+    ).textContent =
+        date || "-";
+
+
+    document.getElementById(
+        "printNotes"
+    ).textContent =
+        notes || "-";
+
+
+    const Qop =
+        getQop();
+
+
+    const Qp =
+        getQp(Qop);
+
+
+    const Qzad =
+        round2(
+            Math.max(
+                0,
+                Qop - Qp
+            )
+        );
+
+
+    let alpha = 0;
+
+    let Kp = 0;
+
+
+    if (Qop > 0) {
+
+        alpha =
+            round2(
+                Qp / Qop
+            );
+
+
+        Kp =
+            round2(
+                getKp(
+                    alpha,
+                    parseFloat(
+                        document.getElementById(
+                            "normP"
+                        ).value
+                    )
+                )
+            );
+
+    }
+
+
+    document.getElementById(
+        "printQop"
+    ).textContent =
+        f2(Qop);
+
+
+    document.getElementById(
+        "printQp"
+    ).textContent =
+        f2(Qp);
+
+
+    document.getElementById(
+        "printQzad"
+    ).textContent =
+        f2(Qzad);
+
+
+    document.getElementById(
+        "printAlpha"
+    ).textContent =
+        f2(alpha);
+
+
+    document.getElementById(
+        "printP"
+    ).textContent =
+        document.getElementById(
+            "normP"
+        ).value;
+
+
+    document.getElementById(
+        "printTom"
+    ).textContent =
+        document.getElementById(
+            "normTom"
+        ).value;
+
+
+    document.getElementById(
+        "printKp"
+    ).textContent =
+        f2(Kp);
+
+
+    document.getElementById(
+        "printVp"
+    ).textContent =
+        f2(designVolume);
+
+
+    const printBody =
+        document.getElementById(
+            "printAreasBody"
+        );
+
+
+    printBody.innerHTML = "";
+
+
+    areas.forEach(
+        area => {
+
+            const q =
+                round2(
+                    area.areaHa *
+                    area.psi *
+                    area.intensity
+                );
+
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${area.id}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        area.description
+                    )}
+                </td>
+
+                <td>
+                    ${f2(area.areaM2)}
+                </td>
+
+                <td>
+                    ${f2(area.areaHa)}
+                </td>
+
+                <td>
+                    ${f2(area.psi)}
+                </td>
+
+                <td>
+                    ${f2(area.intensity)}
+                </td>
+
+                <td>
+                    ${f2(q)}
+                </td>
+
+            `;
+
+
+            printBody.appendChild(
+                row
+            );
+
+        }
+    );
+
+
+    document.getElementById(
+        "printDesignerSignature"
+    ).textContent =
+        designer || "-";
+
+
+    updatePrintGeometry();
+
+}
+
+
+/* =====================================================
+   БЕЗОПАСНО ПОКАЗВАНЕ НА ТЕКСТ
+===================================================== */
+
+function escapeHtml(text) {
+
+    return String(text)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   ГЕОМЕТРИЯ В ПЕЧАТА
+===================================================== */
+
+function updatePrintGeometry() {
+
+    const shape =
+        document.getElementById(
+            "tankShape"
+        ).value;
+
+
+    let shapeText = "";
+
+    let geometryText = "";
+
+
+    if (
+        shape ===
+        "horizontalCylinder"
+    ) {
+
+        const D =
+            parseFloat(
+                document.getElementById(
+                    "hcDiameter"
+                ).value
+            ) || 0;
+
+
+        const L =
+            parseFloat(
+                document.getElementById(
+                    "hcLength"
+                ).value
+            ) || 0;
+
+
+        shapeText =
+            "Хоризонтален цилиндър";
+
+
+        geometryText =
+            "D = " +
+            f2(D) +
+            " m; L = " +
+            f2(L) +
+            " m";
+
+    }
+
+
+    if (
+        shape ===
+        "verticalCylinder"
+    ) {
+
+        const D =
+            parseFloat(
+                document.getElementById(
+                    "vcDiameter"
+                ).value
+            ) || 0;
+
+
+        const H =
+            parseFloat(
+                document.getElementById(
+                    "vcHeight"
+                ).value
+            ) || 0;
+
+
+        shapeText =
+            "Вертикален цилиндър";
+
+
+        geometryText =
+            "D = " +
+            f2(D) +
+            " m; H = " +
+            f2(H) +
+            " m";
+
+    }
+
+
+    if (
+        shape ===
+        "rectangle"
+    ) {
+
+        const B =
+            parseFloat(
+                document.getElementById(
+                    "rectWidth"
+                ).value
+            ) || 0;
+
+
+        const H =
+            parseFloat(
+                document.getElementById(
+                    "rectHeight"
+                ).value
+            ) || 0;
+
+
+        const L =
+            parseFloat(
+                document.getElementById(
+                    "rectLength"
+                ).value
+            ) || 0;
+
+
+        shapeText =
+            "Правоъгълен резервоар";
+
+
+        geometryText =
+            "B = " +
+            f2(B) +
+            " m; H = " +
+            f2(H) +
+            " m; L = " +
+            f2(L) +
+            " m";
+
+    }
+
+
+    document.getElementById(
+        "printShape"
+    ).textContent =
+        shapeText;
+
+
+    document.getElementById(
+        "printGeometry"
+    ).textContent =
+        geometryText;
+
+}
+
+
+/* =====================================================
+   CLEAR
+===================================================== */
+
+function clearVolume() {
+
+    designVolume = 0;
+
+
+    document.getElementById(
+        "resultAlpha"
+    ).textContent =
+        "0.00";
+
+
+    document.getElementById(
+        "resultAlpha2"
+    ).textContent =
+        "0.00";
+
+
+    document.getElementById(
+        "resultKp"
+    ).textContent =
+        "0.00";
+
+
+    document.getElementById(
+        "resultVp"
+    ).textContent =
+        "0.00";
+
+
+    document.getElementById(
+        "sumVp"
+    ).textContent =
+        "0.00";
+
+
+    document.getElementById(
+        "sumKp"
+    ).textContent =
+        "0.00";
+
+
+    document.getElementById(
+        "sumAlpha"
+    ).textContent =
+        "0.00";
+
+
+    document.getElementById(
+        "emptyVolume"
+    ).value =
+        "0.00";
+
+
+    document.getElementById(
+        "volumeMessage"
+    ).innerHTML = `
+
+        <div class="info">
+
+            Въведете валидни оразмерителни данни.
+
+        </div>
+
+    `;
+
+
+    calculateEmptying();
+
+    calculateGeometry();
+
+}
+
+
+/* =====================================================
+   ЗАПАЗВАНЕ НА ПРОЕКТИ
+===================================================== */
+
+const PROJECT_STORAGE_KEY =
+    "retentionTankProjects";
+
+
+function getStoredProjects() {
+
+    try {
+
+        const data =
+            localStorage.getItem(
+                PROJECT_STORAGE_KEY
+            );
+
+        if (!data) {
+            return [];
+        }
+
+        const parsed =
+            JSON.parse(data);
+
+        return Array.isArray(parsed)
+            ? parsed
+            : [];
+
+    } catch (error) {
+
+        console.error(
+            "Грешка при зареждане на проектите:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+
+function saveStoredProjects(projects) {
+
+    localStorage.setItem(
+        PROJECT_STORAGE_KEY,
+        JSON.stringify(projects)
+    );
+
+}
+
+
+function getProjectData() {
+
+    return {
+
+        projectName:
+            document.getElementById(
+                "projectName"
+            ).value,
+
+        designer:
+            document.getElementById(
+                "designer"
+            ).value,
+
+        client:
+            document.getElementById(
+                "client"
+            ).value,
+
+        projectDate:
+            document.getElementById(
+                "projectDate"
+            ).value,
+
+        projectNotes:
+            document.getElementById(
+                "projectNotes"
+            ).value,
+
+        qopMode:
+            document.getElementById(
+                "qopMode"
+            ).value,
+
+        directQop:
+            document.getElementById(
+                "directQop"
+            ).value,
+
+        qpMode:
+            document.getElementById(
+                "qpMode"
+            ).value,
+
+        qpPercent:
+            document.getElementById(
+                "qpPercent"
+            ).value,
+
+        qpDirect:
+            document.getElementById(
+                "qpDirect"
+            ).value,
+
+        normTom:
+            document.getElementById(
+                "normTom"
+            ).value,
+
+        normP:
+            document.getElementById(
+                "normP"
+            ).value,
+
+        emptyingHours:
+            document.getElementById(
+                "emptyingHours"
+            ).value,
+
+        tankShape:
+            document.getElementById(
+                "tankShape"
+            ).value,
+
+        hcDiameter:
+            document.getElementById(
+                "hcDiameter"
+            ).value,
+
+        vcDiameter:
+            document.getElementById(
+                "vcDiameter"
+            ).value,
+
+        rectWidth:
+            document.getElementById(
+                "rectWidth"
+            ).value,
+
+        rectHeight:
+            document.getElementById(
+                "rectHeight"
+            ).value,
+
+        areas:
+            areas.map(
+                area => ({
+                    id: area.id,
+                    description: area.description,
+                    areaM2: area.areaM2,
+                    areaHa: area.areaHa,
+                    psi: area.psi,
+                    intensity: area.intensity
+                })
+            )
+
+    };
+
+}
+
+
+function saveCurrentProject() {
+
+    const projectName =
+        document.getElementById(
+            "projectName"
+        ).value.trim();
+
+
+    if (!projectName) {
+
+        alert(
+            "Моля, въведете име на обект преди да запазите проекта."
+        );
+
+        document.getElementById(
+            "projectName"
+        ).focus();
+
+        return;
+
+    }
+
+
+    const projects =
+        getStoredProjects();
+
+
+    let projectId =
+        currentProjectId;
+
+
+    if (!projectId) {
+
+        projectId =
+            Date.now().toString();
+
+    }
+
+
+    const project =
+        getProjectData();
+
+
+    project.id =
+        projectId;
+
+    project.name =
+        projectName;
+
+    project.savedAt =
+        new Date().toISOString();
+
+
+    const existingIndex =
+        projects.findIndex(
+            item =>
+                item.id === projectId
+        );
+
+
+    if (existingIndex >= 0) {
+
+        projects[
+            existingIndex
+        ] =
+            project;
+
+    } else {
+
+        projects.push(project);
+
+    }
+
+
+    saveStoredProjects(projects);
+
+
+    currentProjectId =
+        projectId;
+
+
+    refreshProjectList();
+
+
+    document.getElementById(
+        "savedProjects"
+    ).value =
+        projectId;
+
+
+    showProjectStatus(
+        "Проектът е запазен успешно."
+    );
+
+}
+
+
+function refreshProjectList() {
+
+    const select =
+        document.getElementById(
+            "savedProjects"
+        );
+
+
+    const selected =
+        currentProjectId;
+
+
+    select.innerHTML = `
+
+        <option value="">
+            -- Изберете проект --
+        </option>
+
+    `;
+
+
+    const projects =
+        getStoredProjects();
+
+
+    projects.sort(
+        (a,b) =>
+            String(a.name || "")
+            .localeCompare(
+                String(b.name || ""),
+                "bg"
+            )
+    );
+
+
+    projects.forEach(
+        project => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                project.id;
+
+
+            option.textContent =
+                project.name ||
+                "Без име";
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if (selected) {
+
+        select.value =
+            selected;
+
+    }
+
+}
+
+
+function loadSelectedProject() {
+
+    const id =
+        document.getElementById(
+            "savedProjects"
+        ).value;
+
+
+    if (!id) {
+        return;
+    }
+
+
+    const projects =
+        getStoredProjects();
+
+
+    const project =
+        projects.find(
+            item =>
+                item.id === id
+        );
+
+
+    if (!project) {
+        return;
+    }
+
+
+    loadProjectData(project);
+
+}
+
+
+function loadProjectData(project) {
+
+    currentProjectId =
+        project.id || null;
+
+
+    document.getElementById(
+        "projectName"
+    ).value =
+        project.projectName || "";
+
+
+    document.getElementById(
+        "designer"
+    ).value =
+        project.designer || "";
+
+
+    document.getElementById(
+        "client"
+    ).value =
+        project.client || "";
+
+
+    document.getElementById(
+        "projectDate"
+    ).value =
+        project.projectDate || "";
+
+
+    document.getElementById(
+        "projectNotes"
+    ).value =
+        project.projectNotes || "";
+
+
+    document.getElementById(
+        "qopMode"
+    ).value =
+        project.qopMode || "areas";
+
+
+    document.getElementById(
+        "directQop"
+    ).value =
+        project.directQop ?? "100";
+
+
+    document.getElementById(
+        "qpMode"
+    ).value =
+        project.qpMode || "percent";
+
+
+    document.getElementById(
+        "qpPercent"
+    ).value =
+        project.qpPercent ?? "30";
+
+
+    document.getElementById(
+        "qpDirect"
+    ).value =
+        project.qpDirect ?? "30";
+
+
+    document.getElementById(
+        "normTom"
+    ).value =
+        project.normTom ?? "5";
+
+
+    document.getElementById(
+        "normP"
+    ).value =
+        project.normP ?? "5";
+
+
+    document.getElementById(
+        "emptyingHours"
+    ).value =
+        project.emptyingHours ?? "24";
+
+
+    document.getElementById(
+        "tankShape"
+    ).value =
+        project.tankShape ||
+        "horizontalCylinder";
+
+
+    document.getElementById(
+        "hcDiameter"
+    ).value =
+        project.hcDiameter ?? "3";
+
+
+    document.getElementById(
+        "vcDiameter"
+    ).value =
+        project.vcDiameter ?? "3";
+
+
+    document.getElementById(
+        "rectWidth"
+    ).value =
+        project.rectWidth ?? "3";
+
+
+    document.getElementById(
+        "rectHeight"
+    ).value =
+        project.rectHeight ?? "2";
+
+
+    areas = [];
+
+    areaCounter = 0;
+
+
+    document.getElementById(
+        "areasBody"
+    ).innerHTML = "";
+
+
+    if (
+        Array.isArray(
+            project.areas
+        )
+    ) {
+
+        project.areas.forEach(
+            savedArea => {
+
+                areaCounter++;
+
+                const area = {
+
+                    id:
+                        areaCounter,
+
+                    description:
+                        savedArea.description ||
+                        "Нова площ",
+
+                    areaM2:
+                        round2(
+                            Number(
+                                savedArea.areaM2
+                            ) || 0
+                        ),
+
+                    areaHa:
+                        round2(
+                            Number(
+                                savedArea.areaM2
+                            ) || 0
+                        ) / 10000,
+
+                    psi:
+                        round2(
+                            Number(
+                                savedArea.psi
+                            ) || 0
+                        ),
+
+                    intensity:
+                        round2(
+                            Number(
+                                savedArea.intensity
+                            ) || 0
+                        )
+
+                };
+
+
+                area.areaHa =
+                    round2(
+                        area.areaM2 /
+                        10000
+                    );
+
+
+                areas.push(area);
+
+                createAreaRow(area);
+
+            }
+        );
+
+    }
+
+
+    updateQopMode();
+
+    updateQpMode();
+
+    updateTankShape();
+
+    calculateAll();
+
+    updatePrintReport();
+
+    refreshProjectList();
+
+
+    document.getElementById(
+        "savedProjects"
+    ).value =
+        currentProjectId;
+
+
+    showProjectStatus(
+        "Проектът е зареден."
+    );
+
+}
+
+
+function newProject() {
+
+    if (
+        !confirm(
+            "Да се създаде ли нов проект? Незапазените промени ще бъдат изгубени."
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    currentProjectId =
+        null;
+
+
+    document.getElementById(
+        "projectName"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "designer"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "client"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "projectDate"
+    ).value =
+        new Date()
+        .toISOString()
+        .split("T")[0];
+
+
+    document.getElementById(
+        "projectNotes"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "qopMode"
+    ).value =
+        "areas";
+
+
+    document.getElementById(
+        "directQop"
+    ).value =
+        "100";
+
+
+    document.getElementById(
+        "qpMode"
+    ).value =
+        "percent";
+
+
+    document.getElementById(
+        "qpPercent"
+    ).value =
+        "30";
+
+
+    document.getElementById(
+        "qpDirect"
+    ).value =
+        "30";
+
+
+    document.getElementById(
+        "normTom"
+    ).value =
+        "5";
+
+
+    document.getElementById(
+        "normP"
+    ).value =
+        "5";
+
+
+    document.getElementById(
+        "emptyingHours"
+    ).value =
+        "24";
+
+
+    document.getElementById(
+        "tankShape"
+    ).value =
+        "horizontalCylinder";
+
+
+    document.getElementById(
+        "hcDiameter"
+    ).value =
+        "3";
+
+
+    document.getElementById(
+        "vcDiameter"
+    ).value =
+        "3";
+
+
+    document.getElementById(
+        "rectWidth"
+    ).value =
+        "3";
+
+
+    document.getElementById(
+        "rectHeight"
+    ).value =
+        "2";
+
+
+    areas = [];
+
+    areaCounter = 0;
+
+
+    document.getElementById(
+        "areasBody"
+    ).innerHTML = "";
+
+
+    addArea(
+        "Покриви",
+        10000,
+        0.90,
+        100
+    );
+
+
+    addArea(
+        "Асфалтови площи",
+        10000,
+        0.85,
+        100
+    );
+
+
+    addArea(
+        "Зелени площи",
+        10000,
+        0.30,
+        100
+    );
+
+
+    updateQopMode();
+
+    updateQpMode();
+
+    updateTankShape();
+
+    calculateAll();
+
+    updatePrintReport();
+
+    refreshProjectList();
+
+
+    document.getElementById(
+        "savedProjects"
+    ).value =
+        "";
+
+
+    showProjectStatus(
+        "Създаден е нов проект."
+    );
+
+}
+
+
+function deleteCurrentProject() {
+
+    if (!currentProjectId) {
+
+        alert(
+            "Няма избран записан проект."
+        );
+
+        return;
+
+    }
+
+
+    const projects =
+        getStoredProjects();
+
+
+    const project =
+        projects.find(
+            item =>
+                item.id === currentProjectId
+        );
+
+
+    const projectName =
+        project
+            ? project.name
+            : "избраният проект";
+
+
+    if (
+        !confirm(
+            'Да бъде ли изтрит проектът "' +
+            projectName +
+            '"?'
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const remaining =
+        projects.filter(
+            item =>
+                item.id !==
+                currentProjectId
+        );
+
+
+    saveStoredProjects(
+        remaining
+    );
+
+
+    currentProjectId =
+        null;
+
+
+    refreshProjectList();
+
+
+    showProjectStatus(
+        "Проектът е изтрит."
+    );
+
+}
+
+
+function showProjectStatus(message) {
+
+    const element =
+        document.getElementById(
+            "projectStatus"
+        );
+
+
+    element.textContent =
+        message;
+
+
+    clearTimeout(
+        showProjectStatus.timer
+    );
+
+
+    showProjectStatus.timer =
+        setTimeout(
+            function() {
+
+                element.textContent =
+                    "";
+
+            },
+            3000
+        );
+
+}
+
+
+/* =====================================================
+   EVENTS
+===================================================== */
+
+document
+    .getElementById(
+        "addAreaButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            addArea(
+                "Нова площ",
+                1000,
+                0.70,
+                100
+            );
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "qopMode"
+    )
+    .addEventListener(
+        "change",
+        updateQopMode
+    );
+
+
+document
+    .getElementById(
+        "qpMode"
+    )
+    .addEventListener(
+        "change",
+        updateQpMode
+    );
+
+
+document
+    .getElementById(
+        "directQop"
+    )
+    .addEventListener(
+        "input",
+        calculateAll
+    );
+
+
+document
+    .getElementById(
+        "qpPercent"
+    )
+    .addEventListener(
+        "input",
+        calculateAll
+    );
+
+
+document
+    .getElementById(
+        "qpDirect"
+    )
+    .addEventListener(
+        "input",
+        calculateAll
+    );
+
+
+document
+    .getElementById(
+        "normTom"
+    )
+    .addEventListener(
+        "input",
+        calculateAll
+    );
+
+
+document
+    .getElementById(
+        "normP"
+    )
+    .addEventListener(
+        "change",
+        calculateAll
+    );
+
+
+document
+    .getElementById(
+        "emptyingHours"
+    )
+    .addEventListener(
+        "input",
+        calculateEmptying
+    );
+
+
+document
+    .getElementById(
+        "tankShape"
+    )
+    .addEventListener(
+        "change",
+        updateTankShape
+    );
+
+
+[
+    "hcDiameter",
+    "vcDiameter",
+    "rectWidth",
+    "rectHeight"
+]
+.forEach(
+    id => {
+
+        document
+            .getElementById(id)
+            .addEventListener(
+                "input",
+                calculateGeometry
+            );
+
+    }
+);
+
+
+/* Данни за проекта */
+
+[
+    "projectName",
+    "designer",
+    "client",
+    "projectDate",
+    "projectNotes"
+]
+.forEach(
+    id => {
+
+        document
+            .getElementById(id)
+            .addEventListener(
+                "input",
+                updatePrintReport
+            );
+
+    }
+);
+
+
+/* Проекти */
+
+document
+    .getElementById(
+        "saveProjectButton"
+    )
+    .addEventListener(
+        "click",
+        saveCurrentProject
+    );
+
+
+document
+    .getElementById(
+        "newProjectButton"
+    )
+    .addEventListener(
+        "click",
+        newProject
+    );
+
+
+document
+    .getElementById(
+        "deleteProjectButton"
+    )
+    .addEventListener(
+        "click",
+        deleteCurrentProject
+    );
+
+
+document
+    .getElementById(
+        "savedProjects"
+    )
+    .addEventListener(
+        "change",
+        loadSelectedProject
+    );
+
+
+/* Печат */
+
+document
+    .getElementById(
+        "printButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            updatePrintReport();
+
+            window.print();
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "updatePrintButton"
+    )
+    .addEventListener(
+        "click",
+        updatePrintReport
+    );
+
+
+/* =====================================================
+   ИНИЦИАЛИЗАЦИЯ
+===================================================== */
+
+renderKpTable();
+
+
+addArea(
+    "Покриви",
+    10000,
+    0.90,
+    100
+);
+
+
+addArea(
+    "Асфалтови площи",
+    10000,
+    0.85,
+    100
+);
+
+
+addArea(
+    "Зелени площи",
+    10000,
+    0.30,
+    100
+);
+
+
+document.getElementById(
+    "projectDate"
+).value =
+    new Date()
+    .toISOString()
+    .split("T")[0];
+
+
+refreshProjectList();
+
+updateQopMode();
+
+updateQpMode();
+
+updateTankShape();
+
+calculateAll();
+
+updatePrintReport();
+
+</script>
+
+</body>
+</html>
+```

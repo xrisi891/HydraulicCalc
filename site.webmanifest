@@ -1,0 +1,17 @@
+{
+  "name": "HR HydroCalc — хидравлични калкулатори",
+  "short_name": "HR HydroCalc",
+  "lang": "bg",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f8fa",
+  "theme_color": "#0e2030",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

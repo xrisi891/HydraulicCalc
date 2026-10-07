@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="bg">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0e2030">
+  <meta name="description" content="HR HydroCalc — хидравлични калкулатори за водопроводи, канализация, преливници, резервоари и помпи.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="HR HydroCalc — хидравлични калкулатори">
+  <meta property="og:description" content="Практични инженерни сметки за водопроводи, канали, помпи и преливници.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="site.webmanifest">
+  <title>HR HydroCalc — хидравлични калкулатори</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="#home" aria-label="HydroCalc начало">
+        <span class="brand-mark" aria-hidden="true">HR</span>
+        <span><strong>HR HydroCalc</strong><small>ХИДРАВЛИЧНИ КАЛКУЛАТОРИ</small></span>
+      </a>
+      <div class="nav-label">КАЛКУЛАТОРИ</div>
+      <nav class="nav" aria-label="Калкулатори">
+        <button class="nav-item active" data-view="pipe"><span class="nav-icon">↗</span><span>Напорен тръбопровод</span><span class="nav-arrow">›</span></button>
+        <button class="nav-item" data-view="mainpipe"><span class="nav-icon">⌁</span><span>Водопровод PN10/PN16</span><span class="nav-arrow">›</span></button>
+        <button class="nav-item" data-view="colebrook"><span class="nav-icon">≈</span><span>Colebrook–White</span><span class="nav-arrow">›</span></button>
+        <button class="nav-item" data-view="sideweir"><span class="nav-icon">↘</span><span>Страничен преливник</span><span class="nav-arrow">›</span></button>
+        <button class="nav-item" data-view="circular"><span class="nav-icon">◉</span><span>Кръгъл канал</span><span class="nav-arrow">›</span></button>
+        <button class="nav-item" data-view="rectangular"><span class="nav-icon">▱</span><span>Правоъгълен канал</span><span class="nav-arrow">›</span></button>
+        <button class="nav-item" data-view="pump"><span class="nav-icon">⚙</span><span>Помпа и мощност</span><span class="nav-arrow">›</span></button>
+        <button class="nav-item" data-view="tank"><span class="nav-icon">▤</span><span>Задържателен резервоар</span><span class="nav-arrow">›</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="unit-chip"><span class="status-dot"></span> SI единици</div>
+        <p>Бързи инженерни сметки<br>в един работен екран.</p>
+        <span class="version">HYDROCALC · 01</span>
+      </div>
+    </aside>
+
+    <main id="home" class="main">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Работна среда</span><span class="crumb-slash">/</span><strong id="crumb-current">Напорен тръбопровод</strong></div>
+        <div class="top-actions"><span class="live-dot"></span><span>Изчисленията се обновяват автоматично</span></div>
+      </header>
+
+      <section class="intro">
+        <div>
+          <div class="eyebrow"><span class="eyebrow-line"></span> ХИДРАВЛИКА · SI</div>
+          <h1 id="page-title">Напорен тръбопровод</h1>
+          <p id="page-desc">Дебит, скорост и загуби на напор по Hazen–Williams и Darcy–Weisbach.</p>
+        </div>
+        <div class="intro-badge"><span class="badge-symbol">∿</span><span><b>Вода</b><small>ρ = 1000 kg/m³ · 10°C</small></span></div>
+      </section>
+
+      <section class="workspace">
+        <div class="panel input-panel">
+          <div class="panel-heading"><div><span class="step-label">01 / ВХОДНИ ДАННИ</span><h2>Параметри</h2></div><span class="panel-icon">⌁</span></div>
+
+          <form id="pipe-form" class="calc-form view-form active" data-view="pipe" autocomplete="off">
+            <div class="field-grid">
+              <label class="field"><span>Дебит <i>Q</i></span><div class="input-wrap"><input name="q" type="number" min="0.0001" step="any" value="25" required><em>m³/h</em></div><small>Обемен дебит</small></label>
+              <label class="field"><span>Вътрешен диаметър <i>D</i></span><div class="input-wrap"><input name="d" type="number" min="1" step="any" value="200" required><em>mm</em></div><small>Светъл диаметър</small></label>
+              <label class="field"><span>Дължина <i>L</i></span><div class="input-wrap"><input name="length" type="number" min="0" step="any" value="500" required><em>m</em></div><small>Дължина на участъка</small></label>
+              <label class="field"><span>Коефициент Hazen–Williams <i>C</i></span><div class="input-wrap"><input name="c" type="number" min="1" step="any" value="140" required><em>—</em></div><small>Според материала и състоянието</small></label>
+              <label class="field"><span>Абсолютна грапавост <i>ε</i></span><div class="input-wrap"><input name="roughness" type="number" min="0" step="any" value="0.15" required><em>mm</em></div><small>За Darcy–Weisbach</small></label>
+              <label class="field"><span>Кинематичен вискозитет <i>ν</i></span><div class="input-wrap"><input name="nu" type="number" min="0.01" step="any" value="1.31" required><em>mm²/s</em></div><small>Вода при около 10°C</small></label>
+            </div>
+            <div class="info-note"><span>i</span><p>Загубите са изчислени за равномерно течение. Местните съпротивления се добавят отделно.</p></div>
+          </form>
+
+          <form id="mainpipe-form" class="calc-form view-form" data-view="mainpipe" autocomplete="off">
+            <div class="field-grid">
+              <label class="field"><span>Номинално налягане</span><div class="input-wrap select-wrap"><select name="pn"><option value="10">PN10 · SDR17</option><option value="16">PN16 · SDR11</option></select><em>PE100</em></div><small>Система от таблиците на Pipelife</small></label>
+              <label class="field"><span>Номинален диаметър <i>DN</i></span><div class="input-wrap select-wrap"><select name="dn"></select><em>mm</em></div><small>Външен диаметър</small></label>
+              <label class="field"><span>Оразмерително водно количество <i>Q</i></span><div class="input-wrap"><input name="q" type="number" min="0.0001" step="any" value="30" required><select class="unit-select" name="qunit" aria-label="Единица за дебит"><option value="ls">L/s</option><option value="m3h">m³/h</option></select></div><small>Въведи дебита в избраната единица</small></label>
+              <label class="field"><span>Вода</span><div class="input-wrap static-value"><span>10°C</span><em>ν = 1.308 mm²/s</em></div><small>Параметри от хидравличния справочник</small></label>
+            </div>
+            <div class="info-note source-note"><span>i</span><p>DN и вътрешният диаметър са по таблиците на Pipelife. Наклонът се изчислява по Darcy–Weisbach/Colebrook–White при k = 0.01 mm и вода 10°C. <a href="https://www.pipelife.bg/content/dam/pipelife/bulgaria/marketing/infrastructure/polezno1/%D0%BA%D0%B0%D0%BB%D0%BA%D1%83%D0%BB%D0%B0%D1%82%D0%BE%D1%80%D0%B8/Hydraulic_Tables_Pressure.pdf.pdf" target="_blank" rel="noopener">Отвори справочника на Pipelife ↗</a></p></div>
+          </form>
+
+          <form id="colebrook-form" class="calc-form view-form" data-view="colebrook" autocomplete="off">
+            <div class="field-grid">
+              <label class="field"><span>Система</span><div class="input-wrap select-wrap"><select name="system"><option value="gravity">Гравитационна</option><option value="pressure">Напорна</option></select><em>режим</em></div><small>Вид хидравлично изчисление</small></label>
+              <label class="field"><span>Изчисление</span><div class="input-wrap select-wrap"><select name="mode"><option value="qv">Дебит и скорост</option><option value="dv">Диаметър и скорост</option><option value="loss" hidden>Загуби на напор и скорост</option></select><em>тип</em></div><small>Избери кои величини да се намерят</small></label>
+              <label class="field"><span>Диаметър</span><div class="input-wrap select-wrap"><select name="dsource"><option value="catalog">PE100 PN10 / PN16</option><option value="inner">Вътрешен диаметър Di</option><option value="sdr">Външен диаметър Du + SDR</option></select><em>източник</em></div><small>За режимите, в които диаметърът е зададен</small></label>
+              <label class="field" data-cb-field="pn"><span>Налягане и DN</span><div class="input-wrap"><select name="pn"><option value="10">PN10</option><option value="16">PN16</option></select><select class="unit-select" name="dn" aria-label="Номинален диаметър"></select></div><small>Вътрешният диаметър се взема от PE100</small></label>
+              <label class="field" data-cb-field="di"><span>Вътрешен диаметър <i>Di</i></span><div class="input-wrap"><input name="di" type="number" min="1" step="any" value="246.8"><em>mm</em></div><small>Светъл диаметър на тръбата</small></label>
+              <label class="field" data-cb-field="sdr"><span>Външен диаметър и SDR</span><div class="input-wrap"><input name="du" type="number" min="1" step="any" value="280"><input name="sdr" type="number" min="2" step="any" value="11"><em>mm / SDR</em></div><small>Di = Du × (1 − 2/SDR)</small></label>
+              <label class="field"><span>Абсолютна грапавост <i>k</i></span><div class="input-wrap"><input name="roughness" type="number" min="0" step="any" value="0.01"><em>mm</em></div><small>PE: 0.01 · бетон: 1.0 · стомана: 0.2 mm</small></label>
+              <label class="field"><span>Температура на водата</span><div class="input-wrap"><input name="temp" type="number" min="2" max="40" step="1" value="10"><em>°C</em></div><small>От 2 до 40°C</small></label>
+              <label class="field" data-cb-field="slope"><span>Наклон / енергиен градиент <i>i</i></span><div class="input-wrap"><input name="slope" type="number" min="0.000001" step="any" value="2"><select class="unit-select" name="iunit" aria-label="Единица за наклон"><option value="permil">‰</option><option value="mm">m/m</option><option value="mkm">m/km</option></select></div><small>Наклон на водното ниво</small></label>
+              <label class="field" data-cb-field="length"><span>Дължина <i>L</i></span><div class="input-wrap"><input name="length" type="number" min="0.01" step="any" value="100"><em>m</em></div><small>Дължина на тръбния участък</small></label>
+              <label class="field" data-cb-field="q"><span>Оразмерително количество <i>Q</i></span><div class="input-wrap"><input name="q" type="number" min="0.0001" step="any" value="30"><select class="unit-select" name="qunit" aria-label="Единица за дебит"><option value="ls">L/s</option><option value="m3h">m³/h</option><option value="m3s">m³/s</option></select></div><small>Обемен дебит</small></label>
+              <label class="field" data-cb-field="pressure"><span>Налягания P₁ / P₂</span><div class="input-wrap"><input name="p1" type="number" step="any" value="6" aria-label="Начално налягане"><input name="p2" type="number" step="any" value="4" aria-label="Крайно налягане"><select class="unit-select" name="punit" aria-label="Единица за налягане"><option value="bar">bar</option><option value="mvs">m вод. ст.</option></select></div><small>Начално и крайно налягане</small></label>
+              <label class="field" data-cb-field="pressure"><span>Коти h₁ / h₂</span><div class="input-wrap"><input name="h1" type="number" step="any" value="6" aria-label="Начална кота"><input name="h2" type="number" step="any" value="4" aria-label="Крайна кота"><em>m</em></div><small>Начална и крайна кота на тръбата</small></label>
+            </div>
+            <div class="info-note source-note"><span>i</span><p>Изчисленията използват Darcy–Weisbach и Colebrook–White, с вискозитет на водата според температурата. <a href="https://pip-all-app-tools.azurewebsites.net/Colebrook?lang=bg" target="_blank" rel="noopener">Оригинален калкулатор на Pipelife ↗</a></p></div>
+          </form>
+
+          <form id="sideweir-form" class="calc-form view-form" data-view="sideweir" autocomplete="off">
+            <div class="field-grid">
+              <label class="field"><span>Дебит преди преливника <i>Q₀</i></span><div class="input-wrap"><input name="q0" type="number" min="0.0001" step="any" value="2"><em>m³/s</em></div><small>Оразмерително водно количество</small></label>
+              <label class="field"><span>Определяне на непреливащия дебит</span><div class="input-wrap select-wrap"><select name="qnonmode"><option value="manual">Въвеждам Qнепр</option><option value="regulation">По Наредба · (1+n₀)Qmax.h</option></select><em>метод</em></div><small>Чл. 33, ал. 3</small></label>
+              <label class="field" data-sw-field="qnon"><span>Непреливащ дебит <i>Qнепр</i></span><div class="input-wrap"><input name="qnon" type="number" min="0.0001" step="any" value="0.5"><em>m³/s</em></div><small>Дебит след преливника</small></label>
+              <label class="field" data-sw-field="qmax"><span>Максимално часово количество в сухо време <i>Qmax.h</i></span><div class="input-wrap"><input name="qmax" type="number" min="0.0001" step="any" value="0.083333"><em>m³/s</em></div><small>Използва се за изчисляване на Qнепр</small></label>
+              <label class="field" data-sw-field="qmax"><span>Степен на разреждане <i>n₀</i></span><div class="input-wrap"><input name="n0" type="number" min="0" step="any" value="5"><em>—</em></div><small>В населеното място обичайно минимум 5, ако няма по-високи изисквания</small></label>
+              <label class="field"><span>Височина на преливния ръб <i>p</i></span><div class="input-wrap"><input name="p" type="number" min="0" step="any" value="0.24"><em>m</em></div><small>Проверовъчно оразмеряване</small></label>
+              <label class="field"><span>Воден стоеж при входа <i>h₁</i></span><div class="input-wrap"><input name="h1" type="number" value="0.8" readonly><em>m</em></div><small>Изчислява се по Манинг при Q₀</small></label>
+              <label class="field"><span>Воден стоеж при изхода <i>h₂</i></span><div class="input-wrap"><input name="h2" type="number" value="0.35" readonly><em>m</em></div><small>Изчислява се по Манинг при Qнепр</small></label>
+              <label class="field"><span>Диаметър на входящата тръба <i>D₁</i></span><div class="input-wrap"><input name="d1" type="number" min="0.1" step="any" value="0.8"><em>m</em></div><small>Широчината B на канала се приема равна на D₁</small></label>
+              <label class="field"><span>Диаметър на отвеждащата тръба <i>D₂</i></span><div class="input-wrap"><input name="d2" type="number" min="0.1" step="any" value="0.8"><em>m</em></div><small>За проверка на режима след преливника</small></label>
+              <label class="field"><span>Наклон на входящата тръба <i>i₁</i></span><div class="input-wrap"><input name="s1" type="number" min="0.000001" step="any" value="0.02"><em>m/m</em></div><small>Надлъжен наклон за изчисляване на h₁</small></label>
+              <label class="field"><span>Наклон на отвеждащата тръба <i>i₂</i></span><div class="input-wrap"><input name="s2" type="number" min="0.000001" step="any" value="0.01"><em>m/m</em></div><small>Надлъжен наклон за изчисляване на h₂</small></label>
+              <label class="field"><span>Коефициент на Манинг <i>n</i></span><div class="input-wrap"><input name="manning" type="number" min="0.005" step="any" value="0.013"><em>—</em></div><small>За материала на двете тръби</small></label>
+              <label class="field"><span>Кота на дъното при входа <i>Z₀</i></span><div class="input-wrap"><input name="z0" type="number" step="any" value="100"><em>m</em></div><small>Абсолютна кота за профилната графика</small></label>
+              <label class="field"><span>Надлъжен наклон на дъното <i>i</i></span><div class="input-wrap"><input name="slope" type="number" min="0" step="any" value="0.001"><em>m/m</em></div><small>За профилните коти по дължината</small></label>
+              <label class="field"><span>Кота на водоприемника при 1% обезпеченост</span><div class="input-wrap"><input name="zrecv" type="number" step="any" placeholder="по избор"><em>m</em></div><small>За нормативна проверка по чл. 32</small></label>
+              <label class="field"><span>Коефициент на стеснение <i>μ</i></span><div class="input-wrap"><input name="mu" type="number" min="0.5" max="0.9" step="any" value="0.7"><em>—</em></div><small>Препоръчителен диапазон: 0.65–0.75</small></label>
+              <label class="field"><span>Изчислителна стъпка <i>Δl</i></span><div class="input-wrap"><input name="dx" type="number" min="0.001" max="0.2" step="any" value="0.01"><em>m</em></div><small>По-малка стъпка дава по-прецизен числен резултат</small></label>
+            </div>
+            <div class="info-note source-note"><span>i</span><p>Численият модел следва методиката за страничен преливник в приложената статия. Нормативните проверки са по <a href="https://www.mrrb.bg/bg/naredba-rd-02-20-8-ot-2013-g-za-proektirane-izgrajdane-i-eksploataciya-na-kanalizacionni-sistemi/" target="_blank" rel="noopener">Наредба № РД-02-20-8, чл. 31–33 ↗</a>. Конструктивните мерки и общото съответствие се проверяват отделно.</p></div>
+          </form>
+
+          <form id="circular-form" class="calc-form view-form" data-view="circular" autocomplete="off">
+            <div class="field-grid">
+              <label class="field"><span>Вътрешен диаметър <i>D</i></span><div class="input-wrap"><input name="d" type="number" min="1" step="any" value="400" required><em>mm</em></div><small>Диаметър на тръбата</small></label>
+              <label class="field"><span>Наклон <i>S</i></span><div class="input-wrap"><input name="slope" type="number" min="0.00001" step="any" value="0.005" required><em>m/m</em></div><small>Надлъжен наклон</small></label>
+              <label class="field"><span>Коефициент на Манинг <i>n</i></span><div class="input-wrap"><input name="n" type="number" min="0.005" step="any" value="0.013" required><em>—</em></div><small>Според материала</small></label>
+              <label class="field"><span>Запълване <i>y/D</i></span><div class="input-wrap"><input name="ratio" type="number" min="0.01" max="1" step="any" value="0.75" required><em>—</em></div><small>От 0.01 до 1.00</small></label>
+            </div>
+            <div class="info-note"><span>i</span><p>Кръгло сечение с частично или пълно запълване. Изчислението е по формулата на Манинг.</p></div>
+          </form>
+
+          <form id="rectangular-form" class="calc-form view-form" data-view="rectangular" autocomplete="off">
+            <div class="field-grid">
+              <label class="field"><span>Ширина на дъното <i>b</i></span><div class="input-wrap"><input name="b" type="number" min="0.01" step="any" value="1.2" required><em>m</em></div><small>Ширина на канала</small></label>
+              <label class="field"><span>Дълбочина на водата <i>y</i></span><div class="input-wrap"><input name="y" type="number" min="0.001" step="any" value="0.6" required><em>m</em></div><small>Работна дълбочина</small></label>
+              <label class="field"><span>Наклон <i>S</i></span><div class="input-wrap"><input name="slope" type="number" min="0.00001" step="any" value="0.002" required><em>m/m</em></div><small>Надлъжен наклон</small></label>
+              <label class="field"><span>Коефициент на Манинг <i>n</i></span><div class="input-wrap"><input name="n" type="number" min="0.005" step="any" value="0.015" required><em>—</em></div><small>Според облицовката</small></label>
+            </div>
+            <div class="info-note"><span>i</span><p>Правоъгълно призматично сечение при равномерно течение.</p></div>
+          </form>
+
+          <form id="pump-form" class="calc-form view-form" data-view="pump" autocomplete="off">
+            <div class="field-grid">
+              <label class="field"><span>Дебит <i>Q</i></span><div class="input-wrap"><input name="q" type="number" min="0.001" step="any" value="36" required><em>m³/h</em></div><small>Необходим работен дебит</small></label>
+              <label class="field"><span>Общ напор <i>H</i></span><div class="input-wrap"><input name="h" type="number" min="0.01" step="any" value="32" required><em>m</em></div><small>Геодезичен + загуби</small></label>
+              <label class="field"><span>КПД на помпата <i>η</i></span><div class="input-wrap"><input name="eta" type="number" min="1" max="100" step="any" value="72" required><em>%</em></div><small>Без КПД на двигателя</small></label>
+              <label class="field"><span>Работно време <i>t</i></span><div class="input-wrap"><input name="hours" type="number" min="0" step="any" value="8" required><em>h/day</em></div><small>За оценка на енергията</small></label>
+            </div>
+            <div class="info-note"><span>i</span><p>Оценка на хидравличната и необходимата входна мощност при зададения КПД.</p></div>
+          </form>
+        </div>
+
+        <div class="panel result-panel">
+          <div class="panel-heading"><div><span class="step-label">02 / РЕЗУЛТАТ</span><h2>Изчислени стойности</h2></div><button id="reset-btn" class="reset-btn" type="button" title="Възстанови началните стойности">↺ <span>Нулирай</span></button></div>
+          <div class="hero-result"><div class="hero-label" id="hero-label">СКОРОСТ НА ТЕЧЕНИЕ</div><div class="hero-number"><strong id="hero-value">—</strong><span id="hero-unit">m/s</span></div><div class="hero-caption" id="hero-caption">Средна скорост в тръбата</div><div class="hero-wave" aria-hidden="true"><svg viewBox="0 0 600 74" preserveAspectRatio="none"><path d="M0 40 C45 40 45 17 90 17 S135 58 180 58 225 25 270 25 315 47 360 47 405 9 450 9 495 56 540 56 585 31 630 31"/><path d="M0 58 C45 58 45 39 90 39 S135 69 180 69 225 44 270 44 315 61 360 61 405 30 450 30 495 70 540 70 585 49 630 49"/></svg></div></div>
+          <div id="result-grid" class="result-grid" aria-live="polite"></div>
+          <div id="result-error" class="result-error" role="alert" hidden></div>
+          <div class="sideweir-chart-wrap" hidden><div class="chart-heading"><b>Надлъжен профил</b><span>Котите се обновяват с входните данни</span></div><svg id="sideweir-chart" viewBox="0 0 760 300" role="img" aria-label="Надлъжен профил на страничния преливник"></svg><div id="sideweir-legend" class="chart-legend"></div></div>
+          <div class="formula-footer"><span class="formula-mark">ƒ</span><span id="formula-note">Hazen–Williams и Darcy–Weisbach</span><span class="formula-scope">ПРЕДВАРИТЕЛНА СМЕТКА</span></div>
+        </div>
+      </section>
+
+      <section id="tank-view" class="tank-panel" hidden>
+        <iframe src="retention-tank.html" title="Оразмеряване на задържателен резервоар" loading="lazy"></iframe>
+      </section>
+
+      <footer class="page-footer"><span>HR HydroCalc · хидравлични калкулатори</span><span>Проверявайте проектните стойности спрямо приложимите норми и условията на обекта.</span></footer>
+    </main>
+  </div>
+</body>
+</html>
